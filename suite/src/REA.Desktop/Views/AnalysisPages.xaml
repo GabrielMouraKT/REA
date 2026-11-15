@@ -268,13 +268,18 @@
             <Border Style="{StaticResource Card}" Padding="10" Visibility="{Binding HasManifest, Converter={StaticResource BoolToVis}}">
                 <TabControl Background="Transparent" BorderThickness="0">
                     <TabItem Header="Diferenças">
-                        <DataGrid ItemsSource="{Binding Changes}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Mudança" Binding="{Binding Change}" Width="100"/>
-                                <DataGridTextColumn Header="Caminho" Binding="{Binding Path}" Width="2*"/>
-                                <DataGridTextColumn Header="Detalhes" Binding="{Binding Details}" Width="*"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Grid>
+                            <DataGrid ItemsSource="{Binding Changes}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mudança" Binding="{Binding Change}" Width="100"/>
+                                    <DataGridTextColumn Header="Caminho" Binding="{Binding Path}" Width="2*"/>
+                                    <DataGridTextColumn Header="Detalhes" Binding="{Binding Details}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Style="{StaticResource MutedText}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="460"
+                                       Visibility="{Binding ComparisonSummary, Converter={StaticResource NullToCollapsed}, ConverterParameter=inverse}"
+                                       Text="Para ver o que mudou entre duas versões, clique em Comparar com outra pasta ou Comparar com manifesto."/>
+                        </Grid>
                     </TabItem>
                     <TabItem Header="Repetidos">
                         <DataGrid ItemsSource="{Binding Duplicates}" RowHeight="NaN">
@@ -609,7 +614,7 @@
                                 <DockPanel>
                                     <Button DockPanel.Dock="Top" Content="Abrir no Protobuf Analyzer" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"
                                             Margin="0,6,0,8" Command="{Binding OpenInProtobufCommand}"/>
-                                    <TextBox Text="{Binding FrameProtobuf, Mode=OneWay}" Style="{StaticResource MonoBox}"/>
+                                    <TextBox Text="{Binding FrameProtobuf, Mode=OneWay}" Style="{StaticResource MonoBox}" TextWrapping="Wrap"/>
                                 </DockPanel>
                             </TabItem>
                         </TabControl>

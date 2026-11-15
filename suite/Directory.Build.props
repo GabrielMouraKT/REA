@@ -10,6 +10,6 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Company>REA Advanced Suite</Company>
     <Product>REA Advanced Suite</Product>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
   </PropertyGroup>
 </Project>

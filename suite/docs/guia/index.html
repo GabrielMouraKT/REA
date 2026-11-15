@@ -248,6 +248,87 @@
     </section>
 
     <!-- ===================================================== MOTOR REA -->
+    <section id="fase3-visao" data-group="FASE 3 — PROTOCOLO E BINÁRIOS" data-status="pronto">
+      <h2>Visão geral da Fase 3</h2>
+      <p>Análise de arquivos (executáveis, bibliotecas, pacotes de jogo) e de protocolos sobre as capturas da Fase 2.
+        Tudo continua ligado ao projeto como evidência, com SHA-256, e o original nunca é alterado.</p>
+      <div class="cards">
+        <div class="card"><h4>Evidence › Files</h4><p>Importa um arquivo para o projeto (cópia conferida). Ponto de partida para Binary Analysis e Ghidra.</p></div>
+        <div class="card"><h4>Binary Analysis</h4><p>O que é o arquivo, quem publicou, arquitetura, seções, imports, exports, strings e hex.</p></div>
+        <div class="card"><h4>File Analysis</h4><p>Inventário de uma pasta, arquivos repetidos, manifesto e comparação entre versões.</p></div>
+        <div class="card"><h4>Ghidra Integration</h4><p>Análise profunda em segundo plano, cancelável, com funções, externos e textos.</p></div>
+        <div class="card"><h4>Protocol Explorer</h4><p>Hipóteses de como as mensagens de uma conexão são separadas, com opcodes candidatos.</p></div>
+        <div class="card"><h4>Protobuf Analyzer</h4><p>Decodifica bytes Protobuf sem .proto; com .proto, mostra os nomes.</p></div>
+        <div class="card"><h4>HTTP/HTTPS Analyzer</h4><p>Pedidos HTTP de uma captura ou arquivo HAR; HTTPS aparece como cifrado.</p></div>
+        <div class="card"><h4>Kali Tools e Integrations</h4><p>Verifica WSL/Kali e onde estão Ghidra, TShark e WSL.</p></div>
+      </div>
+      <h3 id="modo">Modo simples e modo técnico</h3>
+      <p>No canto superior direito há a caixa <strong>Modo técnico</strong>. Desligada (padrão), as telas mostram um resumo
+        <em>Em palavras simples</em>, sem siglas. Ligada, aparecem tabelas, hexadecimal, endereços e hashes. A escolha fica salva.</p>
+    </section>
+
+    <section id="fase3-arquivos" data-group="FASE 3 — PROTOCOLO E BINÁRIOS" data-status="pronto">
+      <h2>Importar e analisar um arquivo</h2>
+      <figure><img src="img/files.png" alt="Evidence › Files com choice.exe importado"><figcaption>Evidence › Files: arquivo importado com formato, arquitetura e SHA-256.</figcaption></figure>
+      <ol class="steps">
+        <li>Menu <strong>Evidence › Files</strong>. Escolha o <strong>Projeto</strong> no filtro (e o ambiente, se quiser).</li>
+        <li><strong>Importar arquivo</strong> e escolha o executável, DLL, .so ou pacote. O REA copia, confere o SHA-256 e identifica o formato pelos bytes (não pela extensão).</li>
+        <li>Importar o mesmo conteúdo de novo no mesmo projeto não duplica o registro.</li>
+        <li>Selecione a linha e clique em <strong>Abrir em Binary Analysis</strong> ou <strong>Analisar com Ghidra</strong>.</li>
+      </ol>
+      <figure><img src="img/binary.png" alt="Binary Analysis"><figcaption>Binary Analysis: resumo em palavras simples; no modo técnico, abas Visão geral, Seções, Imports, Exports, Strings e Hex.</figcaption></figure>
+      <p><strong>Abrir arquivo do computador</strong> analisa qualquer arquivo só para leitura, sem guardá-lo como evidência.</p>
+      <div class="callout"><strong>Assinatura digital</strong>O REA diz se existe uma assinatura embutida, mas não confere se ela é válida.</div>
+    </section>
+
+    <section id="fase3-ghidra" data-group="FASE 3 — PROTOCOLO E BINÁRIOS" data-status="pronto">
+      <h2>Análise profunda com Ghidra</h2>
+      <ol class="steps">
+        <li>Confirme em <strong>Settings › Integrations</strong> que o Ghidra foi encontrado (ou informe a pasta dele).</li>
+        <li>Em <strong>Research › Ghidra Integration</strong>, escolha o arquivo importado e clique em <strong>Analisar com Ghidra</strong>.</li>
+        <li>O registro (log) aparece ao vivo. <strong>Cancelar</strong> encerra o Ghidra e apaga o projeto temporário.</li>
+        <li>No fim, o resumo mostra quantas funções, funções externas e textos foram encontrados; no modo técnico há uma aba para cada.</li>
+      </ol>
+      <p>O Ghidra trabalha num projeto temporário apagado ao final e nunca altera o arquivo. O resultado fica guardado e reaparece ao reabrir a tela.</p>
+    </section>
+
+    <section id="fase3-pastas" data-group="FASE 3 — PROTOCOLO E BINÁRIOS" data-status="pronto">
+      <h2>Comparar versões de um cliente (File Analysis)</h2>
+      <ol class="steps">
+        <li><strong>Inventariar pasta</strong> e escolha a pasta da versão antiga. O REA lista cada arquivo com tamanho, tipo e SHA-256 (pastas grandes demoram; há <strong>Cancelar</strong>).</li>
+        <li><strong>Salvar manifesto</strong> guarda esse inventário num arquivo JSON para comparar depois.</li>
+        <li>Quando sair a versão nova, <strong>Comparar com outra pasta</strong> (ou com um manifesto salvo). A aba Diferenças mostra o que foi alterado, adicionado, removido ou movido.</li>
+        <li><strong>Exportar relatório</strong> gera um Markdown com tipos, repetidos e diferenças.</li>
+      </ol>
+      <p>Atalhos e links de pasta não são seguidos; aparecem na aba <em>Ignorados</em> com o motivo.</p>
+    </section>
+
+    <section id="fase3-protocolo" data-group="FASE 3 — PROTOCOLO E BINÁRIOS" data-status="pronto">
+      <h2>Entender o protocolo de uma conexão</h2>
+      <figure><img src="img/protocol-explorer.png" alt="Protocol Explorer com hipótese de confiança alta"><figcaption>Protocol Explorer: tamanho de 2 bytes, 20 mensagens, opcodes candidatos e corpo Protobuf.</figcaption></figure>
+      <ol class="steps">
+        <li>Em <strong>Research › Protocol Explorer</strong>, escolha a captura, a <strong>conexão</strong> e a <strong>direção</strong>.</li>
+        <li>O REA testa várias formas de tamanho no começo da mensagem e mostra as melhores com confiança Alta, Média ou Baixa.</li>
+        <li>Escolha uma hipótese para ver as mensagens, os <strong>opcodes candidatos</strong> (nunca confirmados) e os bytes de cada mensagem.</li>
+        <li><strong>Abrir no Protobuf Analyzer</strong> leva o corpo da mensagem para análise detalhada.</li>
+      </ol>
+      <div class="callout"><strong>Hipótese, não certeza</strong>Bytes aleatórios às vezes parecem um formato. Confirme com várias capturas antes de registrar uma descoberta.</div>
+      <figure><img src="img/protobuf.png" alt="Protobuf Analyzer decodificando uma mensagem"><figcaption>Protobuf Analyzer: campos numerados e as leituras possíveis de cada um.</figcaption></figure>
+      <p>No <strong>Protobuf Analyzer</strong>, cole bytes em hexadecimal e clique em <strong>Decodificar</strong>. Com um arquivo <strong>.proto</strong>,
+        escolha a mensagem para ver os nomes dos campos; campos fora do .proto ficam sem nome. No modo técnico, <strong>Montar mensagem de teste</strong>
+        cria bytes a partir de linhas como <code>1 varint 150</code>.</p>
+    </section>
+
+    <section id="fase3-http" data-group="FASE 3 — PROTOCOLO E BINÁRIOS" data-status="pronto">
+      <h2>Ver pedidos HTTP (HTTP/HTTPS Analyzer)</h2>
+      <figure><img src="img/http.png" alt="HTTP Analyzer com um pedido GET"><figcaption>HTTP Analyzer: pedido, resposta e cabeçalhos com o cookie ocultado.</figcaption></figure>
+      <ul>
+        <li>Escolha uma captura (lida pelo TShark) ou clique em <strong>Abrir arquivo HAR</strong> (no navegador: F12 › Rede › Salvar tudo como HAR).</li>
+        <li>Valores de Authorization, Cookie e Set-Cookie aparecem como <em>(oculto)</em>; corpos não são copiados, só os tamanhos.</li>
+        <li>Conexões HTTPS aparecem em <em>Conexões cifradas</em> com o nome do servidor; o conteúdo não é lido.</li>
+      </ul>
+    </section>
+
     <section id="motor" data-group="MOTOR REA (CLI)" data-status="pronto">
       <h2>Motor REA pelo terminal</h2>
       <p>O REA (<code>rea-agents</code> 6.4.0, na raiz do repositório) analisa binários, PE, .NET, apps JavaScript/Electron e mais,
@@ -277,7 +358,7 @@ node scripts/rea.mjs search "Login"</code></pre>
       <h2>O que vem a seguir</h2>
       <div class="table-wrap"><table>
         <tr><th>Fase</th><th>Conteúdo</th></tr>
-        <tr><td>3</td><td>Protocol Explorer, Protobuf, Binary/File Analysis, Ghidra Integration, HTTP Analyzer, Kali Tools</td></tr>
+        <tr><td>Depois da 3</td><td><strong>Git Control Center</strong> (Git e GitHub pela interface) e <strong>Claude Control Center</strong> (conversar com o Claude e delegar tarefas)</td></tr>
         <tr><td>4</td><td>Perfis de ambiente, comparações, Session Timeline, correlação de evidências, <strong>Bot Lab: Manual Gameplay, Session Recorder, History, Evidence Explorer</strong></td></tr>
         <tr><td>5</td><td>Launcher Studio</td></tr>
         <tr><td>6</td><td>Portal Studio</td></tr>

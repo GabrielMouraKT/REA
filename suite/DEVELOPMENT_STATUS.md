@@ -1,18 +1,18 @@
 # Status do desenvolvimento
 
-**Última atualização:** 2026-11-15 · **Branch:** `feature/rea-advanced-suite` · **Versão:** 0.2.0
+**Última atualização:** 2026-11-15 · **Branch:** `feature/rea-advanced-suite` · **Versão:** 0.3.0
 
 ## Onde paramos
 
-> **Retomada:** leia primeiro `docs/CONTINUAR.md` (Fase 3 em andamento, roteiro item a item).
+> **Retomada:** leia primeiro `docs/CONTINUAR.md`.
 
-Fases 0, 1 e 2 concluídas e testadas. **Próxima: Fase 3 (Protocol & Binary Analysis)**, ou antecipar o
-**Bot Lab › Manual Gameplay** (planejado na Fase 4) se o dono preferir — ver `IMPLEMENTATION_PLAN.md`.
+Fases 0 a 3 concluídas e testadas (122/122; telas da Fase 3 verificadas na interface real). **Próximo:** Git Control
+Center (modo manual, login do `gh`), depois Claude Control Center (Claude Code instalado) — decisões em `IMPLEMENTATION_PLAN.md`.
 
 ## Para retomar
 
 1. `cd suite; .\scripts\check-environment.ps1`
-2. `.\scripts\build.ps1; .\scripts\test.ps1` → esperado: **66/66** (testes de captura real exigem Npcap com loopback; sem ele são pulados com motivo).
+2. `.\scripts\build.ps1; .\scripts\test.ps1` → esperado: **122/122** (testes de captura real exigem Npcap com loopback; sem ele são pulados com motivo).
 3. Ler `KNOWN_ISSUES.md`, `docs/RELATORIO_FASE2.md` e `docs/BOT_LAB/README.md`.
 4. Ao terminar cada fase: atualizar `docs/guia/index.html`, `docs/GENERAL/USER_GUIDE.md` e escrever `docs/RELATORIO_FASE<N>.md`.
 

@@ -424,3 +424,28 @@ Instruções completas, com imagens, na [página HTML](../guia/index.html#fase2-
 | Research › TCP Stream Explorer | Escolha a captura e o fluxo; veja os bytes por direção, lacunas e linha do tempo; **Exportar bytes**. Estados: Completo, Sem lacunas (início/fim fora da captura), Incompleto.                                                              |
 
 Regras: capturas são evidência (sem exclusão); ambiente/projeto com capturas não pode ser excluído; captura ativa durante uma queda volta como **Interrompida** na próxima abertura. O backup do banco não inclui a pasta `captures`: copie-a junto.
+
+---
+
+## 11. Fase 3 — Protocolo e binários (resumo)
+
+Instruções completas, com imagens, na [página HTML](../guia/index.html#fase3-visao).
+
+**Modo simples × modo técnico:** caixa _Modo técnico_ no canto superior direito. Desligada, cada tela mostra um resumo em
+palavras simples; ligada, mostra tabelas, hexadecimal e detalhes. A escolha fica salva.
+
+| Tela                           | Como usar                                                                                                                                                                                                                                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Evidence › Files               | Escolha o projeto no filtro → **Importar arquivo**. O REA guarda uma cópia com SHA-256 conferido (o original não muda); importar o mesmo conteúdo de novo não duplica. Selecione a linha para **Abrir em Binary Analysis**, **Analisar com Ghidra**, **Detalhes**, **Exportar cópia**, **Mostrar na pasta**. |
+| Research › Binary Analysis     | Escolha o arquivo (ou **Abrir arquivo do computador**, só leitura). Resumo simples; no modo técnico: Visão geral, Seções (com entropia), Imports, Exports, Strings (filtro, tamanho mínimo, exportar) e Hex (posição decimal ou `0x…`).                                                                      |
+| Research › File Analysis       | **Inventariar pasta** → repetidos e todos os arquivos; **Salvar/Abrir manifesto**; **Comparar com outra pasta/manifesto** (alterados, novos, removidos, movidos); **Exportar relatório** (Markdown).                                                                                                         |
+| Research › Ghidra Integration  | Escolha o arquivo importado → **Analisar com Ghidra** (log ao vivo, **Cancelar**). Resultado: funções, externos e textos; fica guardado.                                                                                                                                                                     |
+| Research › Protocol Explorer   | Captura → conexão → direção. Hipóteses de enquadramento com confiança, mensagens, opcodes candidatos, bytes e corpo Protobuf; **Abrir no Protobuf Analyzer**.                                                                                                                                                |
+| Research › Protobuf Analyzer   | Cole hex → **Decodificar**. Opcional: **Carregar .proto** e escolher a mensagem para ver nomes. Modo técnico: **Montar mensagem de teste** (`número tipo valor`).                                                                                                                                            |
+| Research › HTTP/HTTPS Analyzer | Escolha uma captura (precisa do TShark) ou **Abrir arquivo HAR**. Credenciais ocultadas; HTTPS listado como cifrado pelo nome do servidor.                                                                                                                                                                   |
+| Research › Kali Tools          | Detecta WSL e distribuições; **Verificar ferramentas** consulta só a versão de uma lista fixa (nmap, tshark, tcpdump, mitmproxy, binwalk, radare2).                                                                                                                                                          |
+| Settings › Integrations        | Pasta do Ghidra (vazio = usar `GHIDRA_INSTALL_DIR`) e onde estão Ghidra, TShark e WSL.                                                                                                                                                                                                                       |
+
+Regras: arquivos são evidência (sem exclusão); projeto/ambiente com arquivos não pode ser excluído; análise do Ghidra
+interrompida por fechamento do app volta como **Falhou** com o motivo. Os arquivos ficam em `%LOCALAPPDATA%\REA\files`
+(o backup do banco não inclui essa pasta: copie-a junto).

@@ -1,5 +1,16 @@
 # Changelog — REA Advanced Suite
 
+## 0.3.0 — 2026-11-15 (Fase 3)
+
+### Adicionado
+- Evidence › Files (arquivos-evidência com SHA-256, migração AddAnalyzedFiles) e Binary Analysis (PE/ELF, seções, imports, exports, strings, hex).
+- File Analysis: inventário, repetidos, manifesto, comparação entre versões, relatório.
+- Ghidra Integration headless, cancelável, com resultado guardado; Settings › Integrations.
+- Protocol Explorer (hipóteses de enquadramento, opcodes candidatos), Protobuf Analyzer (.proto, montador), HTTP/HTTPS Analyzer (HAR e TShark).
+- Kali Tools (WSL e catálogo fixo).
+- Modo Simples × Técnico global.
+- Requisitos registrados: Claude Control Center e Git Control Center.
+
 ## 0.2.0 — 2026-11-15 (Fase 2)
 
 ### Adicionado

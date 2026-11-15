@@ -22,7 +22,7 @@ public sealed class InverseBoolConverter : IValueConverter
 public sealed class NullToCollapsedConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-        value is null || value is string { Length: 0 } ? Visibility.Collapsed : Visibility.Visible;
+        (value is null || value is string { Length: 0 }) ^ (parameter as string == "inverse") ? Visibility.Collapsed : Visibility.Visible;
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();

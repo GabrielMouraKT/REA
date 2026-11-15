@@ -348,11 +348,11 @@ public sealed partial class HttpViewModel(ScopedRunner runner, NotificationServi
     {
         if (TsharkCrossCheck.Locate() is null)
         {
-            Show(new HttpAnalysis("TShark", [], [], ["TShark não encontrado. Instale o Wireshark para ler HTTP de capturas, ou importe um arquivo HAR do navegador."]), "captura");
+            Show(new HttpAnalysis("TShark", [], [], ["TShark não encontrado. Instale o Wireshark para ler HTTP de capturas, ou importe um arquivo HAR do navegador."]), "Nesta captura");
             return;
         }
         SourceText = "Fonte: captura selecionada (lida pelo TShark).";
-        Show(await HttpAnalyzer.FromCaptureAsync(path), "captura");
+        Show(await HttpAnalyzer.FromCaptureAsync(path), "Nesta captura");
     }
 
     [RelayCommand]
@@ -364,7 +364,7 @@ public sealed partial class HttpViewModel(ScopedRunner runner, NotificationServi
         try
         {
             SourceText = $"Fonte: {Path.GetFileName(path)} (HAR exportado do navegador).";
-            Show(await HttpAnalyzer.ReadHarAsync(path), "arquivo HAR");
+            Show(await HttpAnalyzer.ReadHarAsync(path), "Neste arquivo HAR");
         }
         catch (Exception ex) { Notify.Error($"HAR inválido: {ex.Message}"); }
         finally { IsLoading = false; }
@@ -378,7 +378,7 @@ public sealed partial class HttpViewModel(ScopedRunner runner, NotificationServi
         Notes.Clear();
         foreach (var n in a.Notes) Notes.Add(n);
         var hosts = a.Exchanges.Select(x => x.Host).Where(h => h is not null).Distinct().Count();
-        SimpleSummary = $"Neste {source}: {Ui.Plural(a.Exchanges.Count, "pedido HTTP aberto", "pedidos HTTP abertos")} para {Ui.Plural(hosts, "site", "sites")}" +
+        SimpleSummary = $"{source}: {Ui.Plural(a.Exchanges.Count, "pedido HTTP aberto", "pedidos HTTP abertos")} para {Ui.Plural(hosts, "site", "sites")}" +
                         (a.Encrypted.Count > 0 ? $" e {Ui.Plural(a.Encrypted.Count, "conexão segura", "conexões seguras")} (HTTPS) cujo conteúdo é cifrado e não pode ser lido — só o nome do servidor aparece." : ".") +
                         " Senhas, tokens e cookies nunca são exibidos.";
         SelectedExchange = Exchanges.FirstOrDefault();
