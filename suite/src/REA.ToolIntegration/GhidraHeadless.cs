@@ -74,7 +74,7 @@ public static class GhidraHeadless
 
     public static async Task<GhidraRunResult> AnalyzeAsync(GhidraInstallation ghidra, string binaryPath,
         Action<string>? onLog = null, TimeSpan? timeout = null, int maxFunctions = DefaultMaxFunctions,
-        int maxStrings = DefaultMaxStrings, CancellationToken ct = default)
+        int maxStrings = DefaultMaxStrings, string? importName = null, CancellationToken ct = default)
     {
         var sw = Stopwatch.StartNew();
         if (!File.Exists(binaryPath))
@@ -89,9 +89,18 @@ public static class GhidraHeadless
         try
         {
             await File.WriteAllTextAsync(Path.Combine(scriptDir, ScriptName), ExportScript, ct);
+            // Com nome de exibição, importa uma cópia temporária com esse nome (o Ghidra usa o nome do arquivo).
+            var importPath = Path.GetFullPath(binaryPath);
+            if (SafeFileName(importName) is { } safeName)
+            {
+                var inputDir = Path.Combine(work, "entrada");
+                Directory.CreateDirectory(inputDir);
+                importPath = Path.Combine(inputDir, safeName);
+                File.Copy(binaryPath, importPath);
+            }
             string[] args =
             [
-                ghidra.AnalyzeHeadless, projectDir, "REA", "-import", Path.GetFullPath(binaryPath),
+                ghidra.AnalyzeHeadless, projectDir, "REA", "-import", importPath,
                 "-scriptPath", scriptDir, "-postScript", ScriptName, output,
                 maxFunctions.ToString(System.Globalization.CultureInfo.InvariantCulture),
                 maxStrings.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -142,6 +151,14 @@ public static class GhidraHeadless
             catch (IOException) { onLog?.Invoke($"Aviso: pasta temporária não removida: {work}"); }
             catch (UnauthorizedAccessException) { onLog?.Invoke($"Aviso: pasta temporária não removida: {work}"); }
         }
+    }
+
+    private static string? SafeFileName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return null;
+        var invalid = Path.GetInvalidFileNameChars();
+        var cleaned = new string(name.Trim().Select(c => invalid.Contains(c) || c is '%' or '"' ? '_' : c).ToArray());
+        return cleaned.Trim('.', ' ').Length == 0 ? null : cleaned[..Math.Min(cleaned.Length, 120)];
     }
 
     /// <summary>Script Java executado dentro do Ghidra. Escreve JSON à mão para não depender de bibliotecas.</summary>

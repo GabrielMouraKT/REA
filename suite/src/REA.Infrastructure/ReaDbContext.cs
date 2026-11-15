@@ -12,6 +12,7 @@ public sealed class ReaDbContext(DbContextOptions<ReaDbContext> options) : DbCon
     public DbSet<ActivityEntry> Activity => Set<ActivityEntry>();
     public DbSet<AppSetting> Settings => Set<AppSetting>();
     public DbSet<Capture> Captures => Set<Capture>();
+    public DbSet<AnalyzedFile> AnalyzedFiles => Set<AnalyzedFile>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
@@ -84,6 +85,31 @@ public sealed class ReaDbContext(DbContextOptions<ReaDbContext> options) : DbCon
             e.HasIndex(x => new { x.ProjectId, x.CreatedAt });
             e.HasIndex(x => x.EnvironmentId);
             e.HasIndex(x => x.Status);
+            e.HasOne(x => x.Project).WithMany().HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Environment).WithMany().HasForeignKey(x => x.EnvironmentId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        b.Entity<AnalyzedFile>(e =>
+        {
+            e.ToTable("analyzed_files");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).HasMaxLength(160).IsRequired();
+            e.Property(x => x.OriginalPath).HasMaxLength(1024);
+            e.Property(x => x.StoredFile).HasMaxLength(512).IsRequired();
+            e.Property(x => x.Sha256).HasMaxLength(64).IsRequired();
+            e.Property(x => x.Format).HasMaxLength(60).IsRequired();
+            e.Property(x => x.FormatDescription).HasMaxLength(1000);
+            e.Property(x => x.Architecture).HasMaxLength(60);
+            e.Property(x => x.Summary).HasMaxLength(4000);
+            e.Property(x => x.Notes).HasMaxLength(4000);
+            e.Property(x => x.GhidraStatus).HasConversion<int>();
+            e.Property(x => x.GhidraError).HasMaxLength(2000);
+            e.Property(x => x.GhidraVersion).HasMaxLength(40);
+            e.Property(x => x.GhidraResultFile).HasMaxLength(512);
+            e.HasIndex(x => new { x.ProjectId, x.CreatedAt });
+            e.HasIndex(x => new { x.ProjectId, x.Sha256 });
+            e.HasIndex(x => x.EnvironmentId);
+            e.HasIndex(x => x.GhidraStatus);
             e.HasOne(x => x.Project).WithMany().HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Environment).WithMany().HasForeignKey(x => x.EnvironmentId).OnDelete(DeleteBehavior.Restrict);
         });

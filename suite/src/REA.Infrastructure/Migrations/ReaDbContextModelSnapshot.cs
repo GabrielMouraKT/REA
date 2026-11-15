@@ -67,6 +67,104 @@ namespace REA.Infrastructure.Migrations
                     b.ToTable("activity_log", (string)null);
                 });
 
+            modelBuilder.Entity("REA.Domain.AnalyzedFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Architecture")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("EnvironmentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FormatDescription")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("GhidraAnalyzedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GhidraError")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("GhidraFunctionCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GhidraResultFile")
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("GhidraStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("GhidraStringCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GhidraVersion")
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginalPath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StoredFile")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EnvironmentId");
+
+                    b.HasIndex("GhidraStatus");
+
+                    b.HasIndex("ProjectId", "CreatedAt");
+
+                    b.HasIndex("ProjectId", "Sha256");
+
+                    b.ToTable("analyzed_files", (string)null);
+                });
+
             modelBuilder.Entity("REA.Domain.AppSetting", b =>
                 {
                     b.Property<string>("Key")
@@ -290,6 +388,24 @@ namespace REA.Infrastructure.Migrations
                     b.HasIndex("Status", "UpdatedAt");
 
                     b.ToTable("projects", (string)null);
+                });
+
+            modelBuilder.Entity("REA.Domain.AnalyzedFile", b =>
+                {
+                    b.HasOne("REA.Domain.ResearchEnvironment", "Environment")
+                        .WithMany()
+                        .HasForeignKey("EnvironmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("REA.Domain.ResearchProject", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Environment");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("REA.Domain.Capture", b =>

@@ -12,6 +12,9 @@ public static class CoreServiceCollectionExtensions
         services.AddScoped<EnvironmentService>();
         services.AddScoped<DashboardService>();
         services.AddScoped<CaptureService>();
+        services.AddScoped<FileEvidenceService>();
+        services.AddSingleton<IntegrationSettings>();
+        services.AddScoped<SettingsService>();
         return services;
     }
 }

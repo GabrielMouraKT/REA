@@ -25,6 +25,7 @@ public sealed class EnvironmentService(
     IProjectRepository projects,
     IEnvironmentRepository environments,
     ICaptureRepository captures,
+    IAnalyzedFileRepository analyzedFiles,
     IActivityLog activity,
     IUnitOfWork unitOfWork,
     IClock clock,
@@ -74,6 +75,8 @@ public sealed class EnvironmentService(
         if (env is null) return OperationResult.Fail("Ambiente não encontrado.");
         if (await captures.CountByEnvironmentAsync(id, ct) > 0)
             return OperationResult.Fail("Este ambiente tem capturas registradas e não pode ser excluído. Arquive o projeto se ele não for mais usado.");
+        if (await analyzedFiles.CountByEnvironmentAsync(id, ct) > 0)
+            return OperationResult.Fail("Este ambiente tem arquivos analisados registrados e não pode ser excluído. Arquive o projeto se ele não for mais usado.");
         environments.Remove(env);
         Audit("Excluir ambiente", env, $"Ambiente \"{env.Name}\" excluído.", Describe(env), null);
         await unitOfWork.SaveChangesAsync(ct);

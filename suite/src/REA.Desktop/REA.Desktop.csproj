@@ -14,6 +14,9 @@
     <ProjectReference Include="..\REA.Core\REA.Core.csproj" />
     <ProjectReference Include="..\REA.Infrastructure\REA.Infrastructure.csproj" />
     <ProjectReference Include="..\REA.NetworkCapture\REA.NetworkCapture.csproj" />
+    <ProjectReference Include="..\REA.BinaryAnalysis\REA.BinaryAnalysis.csproj" />
+    <ProjectReference Include="..\REA.ProtocolAnalysis\REA.ProtocolAnalysis.csproj" />
+    <ProjectReference Include="..\REA.ToolIntegration\REA.ToolIntegration.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />

@@ -6,7 +6,7 @@ namespace REA.ToolIntegration;
 /// <summary>Ferramenta conhecida. O comando de verificação é fixo; o REA não executa comandos arbitrários no WSL.</summary>
 public sealed record KaliTool(string Id, string Name, string Purpose, string Executable, IReadOnlyList<string> VersionArgs);
 
-public sealed record ToolStatus(KaliTool Tool, bool Installed, string? Version, string? Problem);
+public sealed record KaliToolStatus(KaliTool Tool, bool Installed, string? Version, string? Problem);
 
 public sealed record WslReport(bool WslAvailable, IReadOnlyList<string> Distributions, string? Problem);
 
@@ -47,22 +47,22 @@ public static class KaliCatalog
     }
 
     /// <summary>Verifica uma ferramenta do catálogo numa distribuição que o próprio WSL listou.</summary>
-    public static async Task<ToolStatus> CheckAsync(WslReport report, string distribution, KaliTool tool, CancellationToken ct = default)
+    public static async Task<KaliToolStatus> CheckAsync(WslReport report, string distribution, KaliTool tool, CancellationToken ct = default)
     {
         if (!Tools.Contains(tool)) throw new ArgumentException("Ferramenta fora do catálogo.", nameof(tool));
         if (!report.Distributions.Contains(distribution, StringComparer.Ordinal))
-            return new ToolStatus(tool, false, null, $"Distribuição '{distribution}' não encontrada no WSL.");
+            return new KaliToolStatus(tool, false, null, $"Distribuição '{distribution}' não encontrada no WSL.");
         var wsl = LocateWsl()!;
         var args = new List<string> { "-d", distribution, "--exec", tool.Executable };
         args.AddRange(tool.VersionArgs);
         var r = await ProcessRunner.RunAsync(Psi(wsl, args), timeout: CallTimeout, ct: ct);
-        if (r.TimedOut) return new ToolStatus(tool, false, null, "A verificação não respondeu a tempo.");
+        if (r.TimedOut) return new KaliToolStatus(tool, false, null, "A verificação não respondeu a tempo.");
         var first = r.Lines.Select(Clean).FirstOrDefault(l => l.Length > 0);
         var missing = r.ExitCode is 1 or 127 && (first is null || first.Contains("not found", StringComparison.OrdinalIgnoreCase)
                                                   || first.Contains("No such file", StringComparison.OrdinalIgnoreCase));
         if (missing || (r.ExitCode != 0 && first is null))
-            return new ToolStatus(tool, false, null, "Não instalada nesta distribuição.");
-        return new ToolStatus(tool, true, first, r.ExitCode == 0 ? null : $"Respondeu com código {r.ExitCode}.");
+            return new KaliToolStatus(tool, false, null, "Não instalada nesta distribuição.");
+        return new KaliToolStatus(tool, true, first, r.ExitCode == 0 ? null : $"Respondeu com código {r.ExitCode}.");
     }
 
     private static ProcessStartInfo Psi(string exe, IEnumerable<string> args)

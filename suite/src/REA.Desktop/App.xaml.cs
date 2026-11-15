@@ -3,12 +3,14 @@ using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using REA.BinaryAnalysis;
 using REA.Core;
 using REA.Desktop.Services;
 using REA.Desktop.ViewModels;
 using REA.Infrastructure;
 using REA.NetworkCapture;
 using REA.PacketAnalyzer;
+using REA.ToolIntegration;
 using Serilog;
 
 namespace REA.Desktop;
@@ -41,6 +43,8 @@ public partial class App : Application
                 services.AddReaInfrastructure(paths);
                 services.AddReaPacketAnalyzer();
                 services.AddReaNetworkCapture();
+                services.AddReaBinaryAnalysis();
+                services.AddReaToolIntegration();
                 services.AddSingleton<NetworkCaptureViewModel>();
                 services.AddTransient<PacketInspectorViewModel>();
                 services.AddTransient<TcpStreamsViewModel>();
@@ -70,6 +74,10 @@ public partial class App : Application
             var recovered = await _host.Services.GetRequiredService<ScopedRunner>()
                 .RunAsync<CaptureService, int>(s => s.RecoverInterruptedAsync());
             if (recovered > 0) Log.Warning("{Count} captura(s) interrompida(s) recuperada(s)", recovered);
+            var runner = _host.Services.GetRequiredService<ScopedRunner>();
+            await runner.RunAsync<SettingsService, bool>(async s => { await s.LoadAsync(); return true; });
+            var ghidraRecovered = await runner.RunAsync<FileEvidenceService, int>(s => s.RecoverInterruptedAsync());
+            if (ghidraRecovered > 0) Log.Warning("{Count} análise(s) do Ghidra interrompida(s) recuperada(s)", ghidraRecovered);
         }
         catch (Exception ex)
         {

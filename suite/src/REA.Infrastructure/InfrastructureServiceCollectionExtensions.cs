@@ -17,6 +17,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IActivityLog, ActivityLog>();
         services.AddScoped<ICaptureRepository, CaptureRepository>();
         services.AddSingleton<ICaptureStorage, CaptureStorage>();
+        services.AddScoped<IAnalyzedFileRepository, AnalyzedFileRepository>();
+        services.AddSingleton<IFileEvidenceStorage, FileEvidenceStorage>();
+        services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IDatabaseInfoProvider, DatabaseInfoProvider>();
         services.AddSingleton<IBackupService, SqliteBackupService>();
         services.AddSingleton<IToolDetector, ToolDetector>();
