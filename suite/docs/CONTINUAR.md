@@ -2,6 +2,12 @@
 
 **Salvo em:** 15/11/2026 · **Branch:** `feature/rea-advanced-suite` · **Último commit estável:** `8c689051` (Fase 2) + commit WIP da Fase 3.
 
+## Requisitos do dono (fonte da verdade)
+
+Ler antes de implementar: `docs/REQUISITOS/01_PROMPT_MESTRE_RESUMO.md` (prompt mestre por seção), `02_BOT_LAB_AI.md` (Bot Lab) e `03_AUTONOMOUS_OPERATOR.md` (texto integral: usuário leigo, REA Autonomous Operator, Guided Capture, Modo Simples × Técnico, relatório automático).
+
+**Impacto do Autonomous Operator nas próximas fases:** telas principais em linguagem simples (sem siglas); detalhes técnicos atrás de um Modo Técnico; o REA escolhe sozinho interface de rede, filtro e configurações recomendadas; nunca pedir terminal, filtros ou configuração manual ao dono. Planejado: serviço `AutonomousOperator` + wizard **Guided Capture** (Preparar ambiente → Começar captura → Finalizar captura) junto com o **Bot Lab › Manual Gameplay** na Fase 4; nas Fases 3+ toda tela nova já nasce com Modo Simples e Modo Técnico.
+
 ## Passos ao retomar
 
 1. `cd "C:\Users\Gabriel\Desktop\REA ADVANCED SUITE"` → `git status`, `git log --oneline -3`.
