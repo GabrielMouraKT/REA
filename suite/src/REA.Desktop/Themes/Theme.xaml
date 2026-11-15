@@ -37,6 +37,7 @@
     <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
     <local:NullToCollapsedConverter x:Key="NullToCollapsed"/>
+    <local:InverseBoolConverter x:Key="InverseBool"/>
 
     <!-- Texto -->
     <Style x:Key="H1" TargetType="TextBlock">

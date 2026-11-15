@@ -94,10 +94,28 @@
         <!-- Conteúdo -->
         <DockPanel Grid.Column="1">
             <Border DockPanel.Dock="Top" Padding="28,18,28,14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <DockPanel>
+                <CheckBox DockPanel.Dock="Right" VerticalAlignment="Center" IsChecked="{Binding Mode.IsTechnical}" Foreground="{StaticResource Text}"
+                          AutomationProperties.AutomationId="TechnicalMode"
+                          ToolTip="Modo simples: resumo em linguagem do dia a dia. Modo técnico: tabelas, hexadecimal e detalhes de formato.">
+                    <TextBlock>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="Modo técnico (desligado: modo simples)"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Mode.IsTechnical}" Value="True">
+                                        <Setter Property="Text" Value="Modo técnico (ligado)"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </CheckBox>
                 <StackPanel>
                     <TextBlock Text="{Binding CurrentSection}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Muted}"/>
                     <TextBlock Text="{Binding CurrentTitle}" Style="{StaticResource H1}" Margin="0,2,0,0"/>
                 </StackPanel>
+                </DockPanel>
             </Border>
             <ContentControl Content="{Binding CurrentPage}" Margin="28,20,28,20" Focusable="False"/>
         </DockPanel>

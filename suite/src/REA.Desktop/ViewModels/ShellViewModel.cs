@@ -39,13 +39,15 @@ public sealed partial class ShellViewModel : ObservableObject, INavigator
 
     public ObservableCollection<NavEntry> Entries { get; } = [];
     public NotificationService Notifications { get; }
+    public ViewModeService Mode { get; }
 
     [ObservableProperty] private object? _currentPage;
     [ObservableProperty] private string _currentTitle = "";
     [ObservableProperty] private string _currentSection = "";
 
-    public ShellViewModel(IServiceProvider services, NotificationService notifications, ILogger<ShellViewModel> logger)
+    public ShellViewModel(IServiceProvider services, NotificationService notifications, ViewModeService mode, ILogger<ShellViewModel> logger)
     {
+        Mode = mode;
         _services = services;
         _logger = logger;
         Notifications = notifications;
@@ -94,6 +96,15 @@ public sealed partial class ShellViewModel : ObservableObject, INavigator
         NavigationCatalog.ResearchPackets => _services.GetRequiredService<PacketInspectorViewModel>(),
         NavigationCatalog.ResearchTcp => _services.GetRequiredService<TcpStreamsViewModel>(),
         NavigationCatalog.EvidenceCaptures => _services.GetRequiredService<CapturesViewModel>(),
+        NavigationCatalog.EvidenceFiles => _services.GetRequiredService<FilesViewModel>(),
+        NavigationCatalog.ResearchBinary => _services.GetRequiredService<BinaryAnalysisViewModel>(),
+        NavigationCatalog.ResearchFiles => _services.GetRequiredService<FileAnalysisViewModel>(),
+        NavigationCatalog.ResearchGhidra => _services.GetRequiredService<GhidraViewModel>(),
+        NavigationCatalog.ResearchKali => _services.GetRequiredService<KaliViewModel>(),
+        NavigationCatalog.ResearchProtobuf => _services.GetRequiredService<ProtobufViewModel>(),
+        NavigationCatalog.ResearchProtocol => _services.GetRequiredService<ProtocolExplorerViewModel>(),
+        NavigationCatalog.ResearchHttp => _services.GetRequiredService<HttpViewModel>(),
+        NavigationCatalog.SettingsIntegrations => _services.GetRequiredService<IntegrationsViewModel>(),
         _ => throw new InvalidOperationException($"Página implementada sem tela: {key}"),
     };
 }

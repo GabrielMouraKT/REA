@@ -1,0 +1,690 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:REA.Desktop.ViewModels">
+
+    <!-- Bloco "em palavras simples": aparece nos dois modos, no topo -->
+    <Style x:Key="SimpleCard" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="Background" Value="{StaticResource Surface2}"/>
+    </Style>
+
+    <DataTemplate x:Key="FactsList">
+        <ItemsControl ItemsSource="{Binding}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource Muted}"/>
+                        <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                                 Foreground="{StaticResource Text}" TextWrapping="Wrap" FontFamily="{StaticResource MonoFont}" FontSize="12" Padding="0"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DataTemplate>
+
+    <!-- ================= EVIDENCE › FILES ================= -->
+    <DataTemplate DataType="{x:Type vm:FilesViewModel}">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Text="Ambiente" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding Environments}" SelectedItem="{Binding ImportEnvironment}" DisplayMemberPath="Label" Width="170" IsEnabled="{Binding CanImport}"/>
+                    <Button Content="Importar arquivo" Margin="8,0,0,0" Command="{Binding ImportCommand}" IsEnabled="{Binding CanImport}"
+                            ToolTip="Escolha um projeto no filtro para importar. O original é copiado com SHA-256 conferido e nunca alterado."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Projeto" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding ProjectFilter}" DisplayMemberPath="Label" Width="230"/>
+                    <TextBlock Text="Buscar" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                    <TextBox Width="200" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" ToolTip="Nome, formato ou SHA-256 (Enter)">
+                        <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding ApplySearchCommand}"/></TextBox.InputBindings>
+                    </TextBox>
+                </StackPanel>
+            </DockPanel>
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10" IsEnabled="{Binding HasSelection}">
+                <TextBlock Text="Arquivo selecionado:" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Button Content="Abrir em Binary Analysis" Command="{Binding OpenBinaryCommand}" CommandParameter="{Binding SelectedRow}"/>
+                <Button Content="Analisar com Ghidra" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding OpenGhidraCommand}" CommandParameter="{Binding SelectedRow}"/>
+                <Button Content="Detalhes" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding DetailsCommand}" CommandParameter="{Binding SelectedRow}"/>
+                <Button Content="Exportar cópia" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding ExportCommand}" CommandParameter="{Binding SelectedRow}"/>
+                <Button Content="Mostrar na pasta" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding ShowInFolderCommand}" CommandParameter="{Binding SelectedRow}"/>
+            </WrapPanel>
+            <Border DockPanel.Dock="Bottom" Style="{StaticResource Card}" Margin="0,12,0,0" MaxHeight="260"
+                    Visibility="{Binding Report, Converter={StaticResource NullToCollapsed}}">
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top">
+                        <Button DockPanel.Dock="Right" Content="Fechar" Style="{StaticResource LinkButton}" Command="{Binding CloseReportCommand}"/>
+                        <TextBlock Text="Detalhes do arquivo" Style="{StaticResource H2}"/>
+                    </DockPanel>
+                    <TextBox Text="{Binding Report, Mode=OneWay}" Style="{StaticResource MonoBox}" TextWrapping="Wrap"/>
+                </DockPanel>
+            </Border>
+            <DockPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Text="Itens por página" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding PageSizes}" SelectedItem="{Binding PageSize}" Width="80"/>
+                    <Button Content="Anterior" Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Command="{Binding PreviousPageCommand}"/>
+                    <Button Content="Próxima" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding NextPageCommand}"/>
+                </StackPanel>
+                <TextBlock Text="{Binding PageText}" Style="{StaticResource MutedText}" VerticalAlignment="Center"/>
+            </DockPanel>
+            <Border Style="{StaticResource Card}" Padding="0">
+                <Grid>
+                    <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedRow}">
+                        <DataGrid.InputBindings>
+                            <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenBinaryCommand}" CommandParameter="{Binding SelectedRow}"/>
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Arquivo" Binding="{Binding Name}" Width="2*" MinWidth="160"/>
+                            <DataGridTextColumn Header="Projeto" Binding="{Binding Project}" Width="*" MinWidth="110"/>
+                            <DataGridTextColumn Header="Ambiente" Binding="{Binding Environment}" Width="*" MinWidth="90"/>
+                            <DataGridTextColumn Header="Formato" Binding="{Binding FormatName}" Width="130"/>
+                            <DataGridTextColumn Header="Arquitetura" Binding="{Binding Architecture}" Width="110"/>
+                            <DataGridTextColumn Header="Tamanho" Binding="{Binding Size}" Width="80"/>
+                            <DataGridTextColumn Header="Ghidra" Binding="{Binding Ghidra}" Width="125"/>
+                            <DataGridTextColumn Header="SHA-256" Binding="{Binding Sha}" Width="120"/>
+                            <DataGridTextColumn Header="Importado" Binding="{Binding Created}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="460"
+                                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="Nenhum arquivo" Style="{StaticResource H2}" HorizontalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource MutedText}" TextAlignment="Center"
+                                   Text="Escolha um projeto no filtro e clique em Importar arquivo (executável, DLL, .so, pacote de dados…). O REA guarda uma cópia conferida e nunca altera o original."/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= BINARY ANALYSIS ================= -->
+    <DataTemplate DataType="{x:Type vm:BinaryAnalysisViewModel}">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <Button DockPanel.Dock="Right" Content="Abrir arquivo do computador" Style="{StaticResource SecondaryButton}" Margin="12,0,0,0"
+                        Command="{Binding OpenFromDiskCommand}" ToolTip="Somente leitura. Para guardar como evidência, use Evidence › Files."/>
+                <TextBlock Text="Arquivo" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" DisplayMemberPath="Label" MaxWidth="720" HorizontalAlignment="Left"/>
+            </DockPanel>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding SourceText}" Style="{StaticResource MutedText}" FontSize="11" Margin="0,0,0,8"/>
+            <Border DockPanel.Dock="Top" Style="{StaticResource WarningBanner}" Visibility="{Binding HasNoFiles, Converter={StaticResource BoolToVis}}">
+                <TextBlock Foreground="{StaticResource Warning}" TextWrapping="Wrap"
+                           Text="Nenhum arquivo importado ainda. Importe em Evidence › Files ou use Abrir arquivo do computador."/>
+            </Border>
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+            <Border DockPanel.Dock="Top" Style="{StaticResource SimpleCard}" Visibility="{Binding SimpleSummary, Converter={StaticResource NullToCollapsed}}">
+                <StackPanel>
+                    <TextBlock Text="Em palavras simples" FontWeight="SemiBold" Foreground="{StaticResource AccentHover}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SimpleSummary}" TextWrapping="Wrap"/>
+                    <ItemsControl ItemsSource="{Binding Warnings}" Margin="0,6,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate><TextBlock Text="{Binding StringFormat=Atenção: {0}}" Foreground="{StaticResource Warning}" TextWrapping="Wrap" FontSize="12"/></DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+            <TextBlock DockPanel.Dock="Top" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,8"
+                       Visibility="{Binding Mode.IsTechnical, Converter={StaticResource InverseBoolToVis}}"
+                       Text="Ligue o Modo técnico (canto superior direito) para ver seções, imports, exports, strings e o conteúdo em hexadecimal."/>
+            <Border Style="{StaticResource Card}" Padding="10" Visibility="{Binding ShowDetails, Converter={StaticResource BoolToVis}}">
+                <TabControl Background="Transparent" BorderThickness="0">
+                    <TabItem Header="Visão geral">
+                        <ScrollViewer Margin="6">
+                            <ContentControl Content="{Binding Facts}" ContentTemplate="{StaticResource FactsList}" Focusable="False"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Seções" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DataGrid ItemsSource="{Binding Sections}" FontFamily="{StaticResource MonoFont}" FontSize="12">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="110"/>
+                                <DataGridTextColumn Header="Endereço" Binding="{Binding Address}" Width="110"/>
+                                <DataGridTextColumn Header="Tam. memória" Binding="{Binding VirtualSize}" Width="120"/>
+                                <DataGridTextColumn Header="Tam. arquivo" Binding="{Binding RawSize}" Width="120"/>
+                                <DataGridTextColumn Header="Permissões" Binding="{Binding Permissions}" Width="90"/>
+                                <DataGridTextColumn Header="Conteúdo" Binding="{Binding Contents}" Width="*"/>
+                                <DataGridTemplateColumn Header="Entropia" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{Binding Entropy}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HighEntropy}" Value="True">
+                                                                <Setter Property="Text" Value="{Binding Entropy, StringFormat={}{0} (alta)}"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource Warning}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Imports" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,6,0,8">
+                                <TextBlock DockPanel.Dock="Right" Text="{Binding ImportStatus}" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                <TextBlock Text="Filtrar" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBox Text="{Binding ImportFilter, UpdateSourceTrigger=PropertyChanged, Delay=250}" Width="240" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <DataGrid ItemsSource="{Binding Imports}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Biblioteca" Binding="{Binding Library}" Width="260"/>
+                                    <DataGridTextColumn Header="Função" Binding="{Binding Function}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </TabItem>
+                    <TabItem Header="Exports" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DataGrid ItemsSource="{Binding Exports}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Ordinal" Binding="{Binding Ordinal}" Width="80"/>
+                                <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="2*"/>
+                                <DataGridTextColumn Header="Endereço (RVA)" Binding="{Binding Address}" Width="120"/>
+                                <DataGridTextColumn Header="Redireciona para" Binding="{Binding Forward}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Strings" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DockPanel>
+                            <WrapPanel DockPanel.Dock="Top" Margin="0,6,0,8">
+                                <TextBlock Text="Filtrar" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBox Text="{Binding StringFilter, UpdateSourceTrigger=PropertyChanged, Delay=300}" Width="240"/>
+                                <TextBlock Text="Tamanho mínimo" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                                <TextBox Text="{Binding MinStringLength}" Width="50"/>
+                                <Button Content="Extrair de novo" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding ExtractStringsCommand}"/>
+                                <Button Content="Exportar" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding ExportStringsCommand}"/>
+                                <TextBlock Text="{Binding StringStatus}" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            </WrapPanel>
+                            <DataGrid ItemsSource="{Binding Strings}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Posição" Binding="{Binding Offset}" Width="100"/>
+                                    <DataGridTextColumn Header="Codificação" Binding="{Binding Encoding}" Width="120"/>
+                                    <DataGridTextColumn Header="Texto" Binding="{Binding Value}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </TabItem>
+                    <TabItem Header="Hex" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DockPanel>
+                            <WrapPanel DockPanel.Dock="Top" Margin="0,6,0,8">
+                                <TextBlock Text="A partir do byte" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBox Text="{Binding HexOffset}" Width="110" FontFamily="{StaticResource MonoFont}" ToolTip="Decimal (4096) ou hexadecimal (0x1000)">
+                                    <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding ReadHexCommand}"/></TextBox.InputBindings>
+                                </TextBox>
+                                <TextBlock Text="Quantidade" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                                <TextBox Text="{Binding HexLength}" Width="90" FontFamily="{StaticResource MonoFont}" ToolTip="Até 1 MB por vez"/>
+                                <Button Content="Mostrar" Margin="8,0,0,0" Command="{Binding ReadHexCommand}"/>
+                            </WrapPanel>
+                            <TextBox Text="{Binding HexText, Mode=OneWay}" Style="{StaticResource MonoBox}"/>
+                        </DockPanel>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= FILE ANALYSIS ================= -->
+    <DataTemplate DataType="{x:Type vm:FileAnalysisViewModel}">
+        <DockPanel>
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <Button Content="Inventariar pasta" Command="{Binding ScanFolderCommand}" IsEnabled="{Binding IsScanning, Converter={StaticResource InverseBool}}"/>
+                <Button Content="Abrir manifesto" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding OpenManifestCommand}"/>
+                <Button Content="Salvar manifesto" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding SaveManifestCommand}" IsEnabled="{Binding HasManifest}"/>
+                <Button Content="Comparar com outra pasta" Style="{StaticResource SecondaryButton}" Margin="18,0,0,0" Command="{Binding CompareWithFolderCommand}" IsEnabled="{Binding HasManifest}"/>
+                <Button Content="Comparar com manifesto" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding CompareWithManifestCommand}" IsEnabled="{Binding HasManifest}"/>
+                <Button Content="Exportar relatório" Style="{StaticResource SecondaryButton}" Margin="18,0,0,0" Command="{Binding ExportReportCommand}" IsEnabled="{Binding HasManifest}"/>
+            </WrapPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,12" Visibility="{Binding IsScanning, Converter={StaticResource BoolToVis}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Cancelar" Style="{StaticResource DangerButton}" Command="{Binding CancelCommand}"/>
+                    <StackPanel>
+                        <TextBlock Text="Lendo os arquivos e calculando o SHA-256 de cada um…" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding ProgressText}" Style="{StaticResource MutedText}" FontFamily="{StaticResource MonoFont}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                        <ProgressBar Style="{StaticResource LoadingBar}" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Border DockPanel.Dock="Top" Style="{StaticResource SimpleCard}">
+                <StackPanel>
+                    <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding ComparisonSummary}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,6,0,0"
+                               Visibility="{Binding ComparisonSummary, Converter={StaticResource NullToCollapsed}}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Padding="10" Visibility="{Binding HasManifest, Converter={StaticResource BoolToVis}}">
+                <TabControl Background="Transparent" BorderThickness="0">
+                    <TabItem Header="Diferenças">
+                        <DataGrid ItemsSource="{Binding Changes}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Mudança" Binding="{Binding Change}" Width="100"/>
+                                <DataGridTextColumn Header="Caminho" Binding="{Binding Path}" Width="2*"/>
+                                <DataGridTextColumn Header="Detalhes" Binding="{Binding Details}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Repetidos">
+                        <DataGrid ItemsSource="{Binding Duplicates}" RowHeight="NaN">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Cópias" Binding="{Binding Copies}" Width="70"/>
+                                <DataGridTextColumn Header="Tamanho" Binding="{Binding Size}" Width="90"/>
+                                <DataGridTextColumn Header="Economia possível" Binding="{Binding Wasted}" Width="130"/>
+                                <DataGridTextColumn Header="Caminhos" Binding="{Binding Paths}" Width="*"/>
+                                <DataGridTextColumn Header="SHA-256" Binding="{Binding Sha}" Width="150"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Todos os arquivos" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DataGrid ItemsSource="{Binding Files}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Caminho" Binding="{Binding Path}" Width="2*"/>
+                                <DataGridTextColumn Header="Tamanho" Binding="{Binding Size}" Width="90"/>
+                                <DataGridTextColumn Header="Formato" Binding="{Binding Format}" Width="150"/>
+                                <DataGridTextColumn Header="SHA-256" Binding="{Binding Sha}" Width="170"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Ignorados">
+                        <DataGrid ItemsSource="{Binding Skipped}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Caminho" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="Motivo" Binding="{Binding Value}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= GHIDRA ================= -->
+    <DataTemplate DataType="{x:Type vm:GhidraViewModel}">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource SimpleCard}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Configurar" Style="{StaticResource LinkButton}" Command="{Binding OpenSettingsCommand}"/>
+                    <TextBlock Text="{Binding GhidraText}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Border>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="12,0,0,0">
+                    <Button Content="Analisar com Ghidra" Command="{Binding RunCommand}" IsEnabled="{Binding CanRun}"/>
+                    <Button Content="Cancelar" Style="{StaticResource DangerButton}" Margin="6,0,0,0" Command="{Binding CancelCommand}"
+                            Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+                <TextBlock Text="Arquivo" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" DisplayMemberPath="Label" MaxWidth="720" HorizontalAlignment="Left"
+                          IsEnabled="{Binding IsRunning, Converter={StaticResource InverseBool}}"/>
+            </DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource WarningBanner}" Visibility="{Binding HasNoFiles, Converter={StaticResource BoolToVis}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Ir para Evidence › Files" Style="{StaticResource LinkButton}" Command="{Binding OpenFilesCommand}"/>
+                    <TextBlock Foreground="{StaticResource Warning}" TextWrapping="Wrap" Text="O Ghidra analisa arquivos guardados como evidência. Importe um arquivo primeiro."/>
+                </DockPanel>
+            </Border>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding StatusText}" Style="{StaticResource MutedText}" Margin="0,0,0,6"/>
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"/>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding ResultSummary}" TextWrapping="Wrap" Margin="0,4,0,10"
+                       Visibility="{Binding ResultSummary, Converter={StaticResource NullToCollapsed}}"/>
+            <Border Style="{StaticResource Card}" Padding="10">
+                <TabControl Background="Transparent" BorderThickness="0">
+                    <TabItem Header="Registro (log)">
+                        <ListBox ItemsSource="{Binding Log}" FontFamily="{StaticResource MonoFont}" FontSize="11" Background="Transparent"
+                                 Foreground="{StaticResource Text}" BorderThickness="0" VirtualizingPanel.IsVirtualizing="True"/>
+                    </TabItem>
+                    <TabItem Header="Funções" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,6,0,8">
+                                <TextBlock Text="Filtrar" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBox Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged, Delay=300}" Width="260" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <DataGrid ItemsSource="{Binding Functions}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="220"/>
+                                    <DataGridTextColumn Header="Endereço" Binding="{Binding Entry}" Width="120"/>
+                                    <DataGridTextColumn Header="Tamanho" Binding="{Binding Size}" Width="80"/>
+                                    <DataGridTextColumn Header="Tipo" Binding="{Binding Kind}" Width="100"/>
+                                    <DataGridTextColumn Header="Assinatura" Binding="{Binding Signature}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </TabItem>
+                    <TabItem Header="Externos" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DataGrid ItemsSource="{Binding Externals}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Biblioteca" Binding="{Binding Library}" Width="260"/>
+                                <DataGridTextColumn Header="Função" Binding="{Binding Name}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Strings" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DataGrid ItemsSource="{Binding Strings}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Endereço" Binding="{Binding Offset}" Width="140"/>
+                                <DataGridTextColumn Header="Texto" Binding="{Binding Value}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= KALI TOOLS ================= -->
+    <DataTemplate DataType="{x:Type vm:KaliViewModel}">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource SimpleCard}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Verificar de novo" Style="{StaticResource LinkButton}" Command="{Binding DetectCommand}"/>
+                    <TextBlock Text="{Binding WslText}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Border>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <Button DockPanel.Dock="Right" Content="Verificar ferramentas" Margin="12,0,0,0" Command="{Binding CheckToolsCommand}" IsEnabled="{Binding CanCheck}"/>
+                <TextBlock Text="Distribuição" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox ItemsSource="{Binding Distributions}" SelectedItem="{Binding SelectedDistribution}" Width="240" HorizontalAlignment="Left"/>
+            </DockPanel>
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+            <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource MutedText}" FontSize="11" Margin="0,10,0,0"
+                       Text="O REA só consulta a versão das ferramentas desta lista fixa. Não executa comandos livres e não instala nada. Use as ferramentas apenas em sistemas seus ou com autorização."/>
+            <Border Style="{StaticResource Card}" Padding="0">
+                <DataGrid ItemsSource="{Binding Tools}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Ferramenta" Binding="{Binding Name}" Width="120"/>
+                        <DataGridTextColumn Header="Para que serve" Binding="{Binding Purpose}" Width="2*"/>
+                        <DataGridTextColumn Header="Situação" Binding="{Binding Status}" Width="*"/>
+                        <DataGridTextColumn Header="Versão" Binding="{Binding Version}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= SETTINGS › INTEGRATIONS ================= -->
+    <DataTemplate DataType="{x:Type vm:IntegrationsViewModel}">
+        <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Ghidra" Style="{StaticResource H2}"/>
+                    <TextBlock Style="{StaticResource MutedText}" Text="Pasta onde o Ghidra está instalado (a que contém support\analyzeHeadless.bat). Deixe vazio para usar a variável GHIDRA_INSTALL_DIR."/>
+                    <TextBlock Text="Pasta do Ghidra" Style="{StaticResource FieldLabel}"/>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Procurar…" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding BrowseCommand}"/>
+                        <TextBox Text="{Binding GhidraDirectory, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}"/>
+                    </DockPanel>
+                    <TextBlock Text="{Binding Error}" Style="{StaticResource ErrorText}" Visibility="{Binding Error, Converter={StaticResource NullToCollapsed}}"/>
+                    <Button Content="Salvar" HorizontalAlignment="Left" Margin="0,12,0,0" Command="{Binding SaveCommand}"
+                            IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBool}}"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                <StackPanel>
+                    <TextBlock Text="Ferramentas encontradas" Style="{StaticResource H2}"/>
+                    <ContentControl Content="{Binding Detected}" ContentTemplate="{StaticResource FactsList}" Focusable="False"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- ================= PROTOBUF ANALYZER ================= -->
+    <DataTemplate DataType="{x:Type vm:ProtobufViewModel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer>
+                <StackPanel>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Bytes da mensagem" Style="{StaticResource H2}"/>
+                            <TextBlock Style="{StaticResource MutedText}" FontSize="12" Text="Cole em hexadecimal (espaços e quebras de linha são ignorados)."/>
+                            <TextBox Text="{Binding HexInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" Height="140" Margin="0,8,0,0"
+                                     AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                            <Button Content="Decodificar" HorizontalAlignment="Left" Margin="0,10,0,0" Command="{Binding DecodeCommand}"/>
+                            <TextBlock Text="{Binding Error}" Style="{StaticResource ErrorText}" Visibility="{Binding Error, Converter={StaticResource NullToCollapsed}}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Arquivo .proto (opcional)" Style="{StaticResource H2}"/>
+                            <TextBlock Text="{Binding SchemaText}" Style="{StaticResource MutedText}" FontSize="12"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Content="Carregar .proto" Style="{StaticResource SecondaryButton}" Command="{Binding LoadProtoCommand}"/>
+                                <Button Content="Remover" Style="{StaticResource LinkButton}" Margin="8,0,0,0" Command="{Binding ClearProtoCommand}"/>
+                            </StackPanel>
+                            <TextBlock Text="Mensagem" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox ItemsSource="{Binding Messages}" SelectedItem="{Binding SelectedMessage}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="0,12,0,0" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="Montar mensagem de teste" Style="{StaticResource H2}"/>
+                            <TextBlock Style="{StaticResource MutedText}" FontSize="12"
+                                       Text="Uma linha por campo: número tipo valor. Tipos: varint, sint, bool, fixed32, fixed64, float, double, string, bytes (hex)."/>
+                            <TextBox Text="{Binding EncoderInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" Height="110" Margin="0,8,0,0"
+                                     AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Content="Montar" Command="{Binding EncodeCommand}"/>
+                                <Button Content="Decodificar o resultado" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding UseEncodedCommand}"/>
+                            </StackPanel>
+                            <TextBox Text="{Binding EncoderOutput, Mode=OneWay}" Style="{StaticResource MonoBox}" TextWrapping="Wrap" Margin="0,8,0,0" MinHeight="40"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            <DockPanel Grid.Column="2">
+                <Border DockPanel.Dock="Top" Style="{StaticResource SimpleCard}" Visibility="{Binding Result, Converter={StaticResource NullToCollapsed}}">
+                    <TextBlock Text="{Binding Result}" TextWrapping="Wrap"/>
+                </Border>
+                <Border Style="{StaticResource Card}" Padding="10">
+                    <TreeView ItemsSource="{Binding Nodes}" Background="Transparent" BorderThickness="0" Foreground="{StaticResource Text}">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="True"/>
+                                <Setter Property="Foreground" Value="{StaticResource Text}"/>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Margin="0,3">
+                                    <TextBlock Text="{Binding Header}" FontWeight="SemiBold" Foreground="{StaticResource AccentHover}"/>
+                                    <TextBlock Text="{Binding Detail}" FontFamily="{StaticResource MonoFont}" FontSize="12" TextWrapping="Wrap" MaxWidth="900"/>
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Border>
+            </DockPanel>
+        </Grid>
+    </DataTemplate>
+
+    <!-- ================= PROTOCOL EXPLORER ================= -->
+    <DataTemplate DataType="{x:Type vm:ProtocolExplorerViewModel}">
+        <DockPanel>
+            <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource CaptureSelector}" Focusable="False"/>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="12,0,0,0">
+                    <TextBlock Text="Direção" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding Directions}" SelectedItem="{Binding Direction}" DisplayMemberPath="Label" Width="170"/>
+                </StackPanel>
+                <TextBlock Text="Conexão" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox ItemsSource="{Binding Streams}" SelectedItem="{Binding SelectedStream}" MaxWidth="620" HorizontalAlignment="Left">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding Index, Mode=OneWay, StringFormat=Nº {0}:}"/>
+                                <Run Text="{Binding Client, Mode=OneWay}"/> ⇄ <Run Text="{Binding Server, Mode=OneWay}"/>
+                                <Run Text="{Binding ClientBytes, Mode=OneWay, StringFormat=· C→S {0}}"/>
+                                <Run Text="{Binding ServerBytes, Mode=OneWay, StringFormat=· S→C {0}}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource WarningBanner}" Visibility="{Binding GapWarning, Converter={StaticResource NullToCollapsed}}">
+                <TextBlock Text="{Binding GapWarning}" Foreground="{StaticResource Warning}" TextWrapping="Wrap"/>
+            </Border>
+            <Border DockPanel.Dock="Top" Style="{StaticResource SimpleCard}" Visibility="{Binding SimpleSummary, Converter={StaticResource NullToCollapsed}}">
+                <StackPanel>
+                    <TextBlock Text="Em palavras simples" FontWeight="SemiBold" Foreground="{StaticResource AccentHover}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SimpleSummary}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+            <TextBlock DockPanel.Dock="Top" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,8"
+                       Visibility="{Binding Mode.IsTechnical, Converter={StaticResource InverseBoolToVis}}"
+                       Text="Ligue o Modo técnico para ver todas as hipóteses, os quadros, os opcodes candidatos e os bytes de cada mensagem."/>
+            <Grid Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Style="{StaticResource Card}" Padding="0" MaxHeight="210">
+                    <DataGrid ItemsSource="{Binding Hypotheses}" SelectedItem="{Binding SelectedHypothesis}" RowHeight="NaN">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Hipótese de enquadramento" Binding="{Binding Description}" Width="2*"/>
+                            <DataGridTextColumn Header="Confiança" Binding="{Binding Confidence}" Width="80"/>
+                            <DataGridTextColumn Header="Quadros" Binding="{Binding Frames}" Width="70"/>
+                            <DataGridTextColumn Header="Bytes explicados" Binding="{Binding Coverage}" Width="170"/>
+                            <DataGridTextColumn Header="Corpo Protobuf" Binding="{Binding Protobuf}" Width="105"/>
+                            <DataGridTextColumn Header="Observações" Binding="{Binding Notes}" Width="*">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="330"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="230"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource Card}" Padding="0">
+                        <DataGrid ItemsSource="{Binding Frames}" SelectedItem="{Binding SelectedFrame}" FontFamily="{StaticResource MonoFont}" FontSize="12" EnableRowVirtualization="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Nº" Binding="{Binding Index}" Width="50"/>
+                                <DataGridTextColumn Header="Posição" Binding="{Binding Offset}" Width="80"/>
+                                <DataGridTextColumn Header="Tam." Binding="{Binding Length}" Width="55"/>
+                                <DataGridTextColumn Header="Opcode?" Binding="{Binding Opcode}" Width="70"/>
+                                <DataGridTextColumn Header="Protobuf" Binding="{Binding Protobuf}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Opcodes candidatos" Style="{StaticResource H2}" Margin="12,10,12,2"/>
+                            <TextBlock DockPanel.Dock="Top" Text="Valores na posição provável do tipo de mensagem. Não confirmados." Style="{StaticResource MutedText}" FontSize="11" Margin="12,0,12,6"/>
+                            <DataGrid ItemsSource="{Binding Opcodes}" FontFamily="{StaticResource MonoFont}" FontSize="12">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Valor" Binding="{Binding Value}" Width="70"/>
+                                    <DataGridTextColumn Header="Vezes" Binding="{Binding Count}" Width="55"/>
+                                    <DataGridTextColumn Header="Corpo" Binding="{Binding BodySizes}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="4" Style="{StaticResource Card}" Padding="10">
+                        <TabControl Background="Transparent" BorderThickness="0">
+                            <TabItem Header="Bytes do quadro">
+                                <TextBox Text="{Binding FrameHex, Mode=OneWay}" Style="{StaticResource MonoBox}"/>
+                            </TabItem>
+                            <TabItem Header="Corpo como Protobuf">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Top" Content="Abrir no Protobuf Analyzer" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"
+                                            Margin="0,6,0,8" Command="{Binding OpenInProtobufCommand}"/>
+                                    <TextBox Text="{Binding FrameProtobuf, Mode=OneWay}" Style="{StaticResource MonoBox}"/>
+                                </DockPanel>
+                            </TabItem>
+                        </TabControl>
+                    </Border>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= HTTP ANALYZER ================= -->
+    <DataTemplate DataType="{x:Type vm:HttpViewModel}">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top">
+                <Button DockPanel.Dock="Right" Content="Abrir arquivo HAR" Style="{StaticResource SecondaryButton}" Margin="12,0,0,10" VerticalAlignment="Top"
+                        Command="{Binding OpenHarCommand}" ToolTip="Exporte do navegador: F12 › Rede › Salvar tudo como HAR"/>
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CaptureSelector}" Focusable="False"/>
+            </DockPanel>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding SourceText}" Style="{StaticResource MutedText}" FontSize="11" Margin="0,0,0,8"/>
+            <Border DockPanel.Dock="Top" Style="{StaticResource SimpleCard}" Visibility="{Binding SimpleSummary, Converter={StaticResource NullToCollapsed}}">
+                <StackPanel>
+                    <TextBlock Text="{Binding SimpleSummary}" TextWrapping="Wrap"/>
+                    <ItemsControl ItemsSource="{Binding Notes}" Margin="0,6,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate><TextBlock Text="{Binding StringFormat=• {0}}" Style="{StaticResource MutedText}" FontSize="12"/></DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="0.8*"/>
+                </Grid.RowDefinitions>
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <DataGrid ItemsSource="{Binding Exchanges}" SelectedItem="{Binding SelectedExchange}" EnableRowVirtualization="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nº" Binding="{Binding Index}" Width="45"/>
+                            <DataGridTextColumn Header="Método" Binding="{Binding Method}" Width="70"/>
+                            <DataGridTextColumn Header="Site" Binding="{Binding Host}" Width="170"/>
+                            <DataGridTextColumn Header="Endereço" Binding="{Binding Url}" Width="2*"/>
+                            <DataGridTextColumn Header="Resposta" Binding="{Binding Status}" Width="110"/>
+                            <DataGridTextColumn Header="Tipo" Binding="{Binding Type}" Width="140"/>
+                            <DataGridTextColumn Header="Tamanho" Binding="{Binding Size}" Width="80"/>
+                            <DataGridTextColumn Header="Tempo" Binding="{Binding Duration}" Width="70"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.4*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource Card}" Padding="10" Visibility="{Binding Mode.IsTechnical, Converter={StaticResource BoolToVis}}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Cabeçalhos (credenciais ocultadas)" Style="{StaticResource H2}"/>
+                            <TextBox Text="{Binding Headers, Mode=OneWay}" Style="{StaticResource MonoBox}"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Conexões cifradas (HTTPS)" Style="{StaticResource H2}" Margin="12,10,12,2"/>
+                            <TextBlock DockPanel.Dock="Top" Text="Conteúdo não legível sem as chaves; só o nome do servidor aparece." Style="{StaticResource MutedText}" FontSize="11" Margin="12,0,12,6"/>
+                            <DataGrid ItemsSource="{Binding Encrypted}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Fluxo" Binding="{Binding TcpStream}" Width="55"/>
+                                    <DataGridTextColumn Header="Servidor (SNI)" Binding="{Binding ServerName}" Width="*"/>
+                                    <DataGridTextColumn Header="Destino" Binding="{Binding Destination}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+</ResourceDictionary>

@@ -87,7 +87,7 @@ public class NavigationCatalogTests
     }
 
     [Fact]
-    public void Implemented_items_are_exactly_the_phase_one_and_two_pages()
+    public void Implemented_items_are_exactly_the_pages_of_phases_one_to_three()
     {
         var implemented = NavigationCatalog.AllItems.Where(i => i.Implemented).Select(i => i.Key).Order().ToList();
         Assert.Equal(
@@ -98,6 +98,9 @@ public class NavigationCatalogTests
                 NavigationCatalog.SettingsDatabase, NavigationCatalog.SettingsTools,
                 NavigationCatalog.ResearchCapture, NavigationCatalog.ResearchPackets, NavigationCatalog.ResearchTcp,
                 NavigationCatalog.EvidenceCaptures,
+                NavigationCatalog.ResearchHttp, NavigationCatalog.ResearchProtocol, NavigationCatalog.ResearchProtobuf,
+                NavigationCatalog.ResearchBinary, NavigationCatalog.ResearchFiles, NavigationCatalog.ResearchGhidra,
+                NavigationCatalog.ResearchKali, NavigationCatalog.EvidenceFiles, NavigationCatalog.SettingsIntegrations,
             }.Order(),
             implemented);
     }

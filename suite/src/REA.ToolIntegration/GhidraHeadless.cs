@@ -74,13 +74,13 @@ public static class GhidraHeadless
 
     public static async Task<GhidraRunResult> AnalyzeAsync(GhidraInstallation ghidra, string binaryPath,
         Action<string>? onLog = null, TimeSpan? timeout = null, int maxFunctions = DefaultMaxFunctions,
-        int maxStrings = DefaultMaxStrings, string? importName = null, CancellationToken ct = default)
+        int maxStrings = DefaultMaxStrings, string? importName = null, string? workRoot = null, CancellationToken ct = default)
     {
         var sw = Stopwatch.StartNew();
         if (!File.Exists(binaryPath))
             return new GhidraRunResult(GhidraRunStatus.Falhou, null, $"Arquivo não encontrado: {binaryPath}", sw.Elapsed, []);
 
-        var work = Path.Combine(Path.GetTempPath(), "rea-ghidra", Guid.NewGuid().ToString("N"));
+        var work = Path.Combine(workRoot ?? Path.Combine(Path.GetTempPath(), "rea-ghidra"), Guid.NewGuid().ToString("N"));
         var projectDir = Path.Combine(work, "projeto");
         var scriptDir = Path.Combine(work, "scripts");
         var output = Path.Combine(work, "export.json");

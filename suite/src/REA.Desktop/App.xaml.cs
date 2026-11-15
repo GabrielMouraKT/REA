@@ -49,6 +49,16 @@ public partial class App : Application
                 services.AddTransient<PacketInspectorViewModel>();
                 services.AddTransient<TcpStreamsViewModel>();
                 services.AddTransient<CapturesViewModel>();
+                services.AddSingleton<ViewModeService>();
+                services.AddTransient<FilesViewModel>();
+                services.AddTransient<BinaryAnalysisViewModel>();
+                services.AddTransient<FileAnalysisViewModel>();
+                services.AddTransient<GhidraViewModel>();
+                services.AddTransient<KaliViewModel>();
+                services.AddTransient<IntegrationsViewModel>();
+                services.AddTransient<ProtobufViewModel>();
+                services.AddTransient<ProtocolExplorerViewModel>();
+                services.AddTransient<HttpViewModel>();
                 services.AddSingleton<NotificationService>();
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<ScopedRunner>();
@@ -76,6 +86,7 @@ public partial class App : Application
             if (recovered > 0) Log.Warning("{Count} captura(s) interrompida(s) recuperada(s)", recovered);
             var runner = _host.Services.GetRequiredService<ScopedRunner>();
             await runner.RunAsync<SettingsService, bool>(async s => { await s.LoadAsync(); return true; });
+            await _host.Services.GetRequiredService<ViewModeService>().LoadAsync();
             var ghidraRecovered = await runner.RunAsync<FileEvidenceService, int>(s => s.RecoverInterruptedAsync());
             if (ghidraRecovered > 0) Log.Warning("{Count} análise(s) do Ghidra interrompida(s) recuperada(s)", ghidraRecovered);
         }

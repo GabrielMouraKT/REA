@@ -59,6 +59,7 @@ public interface IDialogService
     string? Prompt(string title, string message, string initialValue, string confirmLabel);
     string? OpenFile(string title, string filter);
     string? SaveFile(string title, string defaultName, string filter);
+    string? PickFolder(string title);
 }
 
 public sealed class DialogService : IDialogService
@@ -86,6 +87,12 @@ public sealed class DialogService : IDialogService
         var dlg = new Microsoft.Win32.SaveFileDialog { Title = title, FileName = defaultName, Filter = filter, OverwritePrompt = true };
         return dlg.ShowDialog(Application.Current.MainWindow) == true ? dlg.FileName : null;
     }
+
+    public string? PickFolder(string title)
+    {
+        var dlg = new Microsoft.Win32.OpenFolderDialog { Title = title };
+        return dlg.ShowDialog(Application.Current.MainWindow) == true ? dlg.FolderName : null;
+    }
 }
 
 /// <summary>Executa serviços em um escopo de DI próprio (DbContext novo por operação).</summary>
@@ -95,5 +102,34 @@ public sealed class ScopedRunner(IServiceScopeFactory scopes)
     {
         await using var scope = scopes.CreateAsyncScope();
         return await action(scope.ServiceProvider.GetRequiredService<TService>());
+    }
+}
+
+/// <summary>
+/// Modo de exibição global. Simples (padrão): linguagem do dia a dia, sem siglas. Técnico: tabelas, hex e detalhes
+/// de formato. A escolha é salva e vale para todas as telas.
+/// </summary>
+public sealed partial class ViewModeService(IServiceScopeFactory scopes) : ObservableObject
+{
+    public const string Key = "ui.mode";
+
+    [ObservableProperty] private bool _isTechnical;
+
+    public async Task LoadAsync()
+    {
+        await using var scope = scopes.CreateAsyncScope();
+        var repo = scope.ServiceProvider.GetRequiredService<REA.Core.ISettingsRepository>();
+        IsTechnical = await repo.GetAsync(Key) == "technical";
+    }
+
+    async partial void OnIsTechnicalChanged(bool value)
+    {
+        try
+        {
+            await using var scope = scopes.CreateAsyncScope();
+            await scope.ServiceProvider.GetRequiredService<REA.Core.ISettingsRepository>().SetAsync(Key, value ? "technical" : "simple");
+            await scope.ServiceProvider.GetRequiredService<REA.Core.IUnitOfWork>().SaveChangesAsync();
+        }
+        catch (Exception) { /* preferência visual: falha ao salvar não interrompe o uso */ }
     }
 }

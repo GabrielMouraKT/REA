@@ -32,6 +32,19 @@ Ler antes de implementar: `docs/REQUISITOS/01_PROMPT_MESTRE_RESUMO.md` (prompt m
 | 12  | Testes: PE real (`C:\Windows\System32\notepad.exe`), ELF sintético, PAK sintético, strings, inventário/comparação, protobuf ida e volta, `.proto`, framing sintético (u16 LE incluindo cabeçalho + opcode), HAR, Ghidra real condicionado a `GHIDRA_INSTALL_DIR` (binário pequeno do System32)                                                                                                                                                                                                                                     | Pendente                                                                                   |
 | 13  | `Settings › Integrations` (caminhos configuráveis)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | **Backend feito** (`SettingsService`, chave `integrations.ghidra.directory`); falta a tela |
 
+## Item 11 (telas) — situação
+
+Feitas e compiladas: Evidence › Files, Binary Analysis, File Analysis, Ghidra Integration, Kali Tools, Settings › Integrations,
+Protobuf Analyzer, Protocol Explorer, HTTP Analyzer, seletor global Modo Simples/Técnico (salvo em `ui.mode`).
+Verificadas na interface real (UI Automation, dados em pasta temporária): criar projeto → importar `choice.exe` → Binary Analysis
+nos dois modos (abas Seções/Strings/Hex) → Ghidra pela tela (94 funções, 80 externos, 129 strings). **Falta verificar na interface:**
+File Analysis, Protobuf, Protocol Explorer, HTTP, Kali, Integrations. A automação de tela foi interrompida a pedido do dono —
+perguntar antes de dirigir a interface de novo.
+
+## Módulos novos (requisitos 04 e 05)
+
+Claude Control Center e Git Control Center: requisitos salvos; encaixe e decisões pendentes em `IMPLEMENTATION_PLAN.md`.
+
 ## Pendências fora da Fase 3
 
 - Links das referências do Bot Lab "AI.game.agent" e "Pixeler" (pedir ao dono).

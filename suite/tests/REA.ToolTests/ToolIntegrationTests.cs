@@ -79,15 +79,17 @@ public class GhidraHeadlessTests
     {
         var ghidra = GhidraHeadless.Locate();
         Assert.SkipWhen(ghidra is null, "Ghidra não encontrado (defina GHIDRA_INSTALL_DIR).");
-        var tempRoot = Path.Combine(Path.GetTempPath(), "rea-ghidra");
-        var existing = Directory.Exists(tempRoot) ? Directory.GetDirectories(tempRoot).ToHashSet() : [];
+        // Pasta própria: outros testes podem estar rodando o Ghidra ao mesmo tempo na pasta padrão.
+        var workRoot = Path.Combine(Path.GetTempPath(), "rea-ghidra-cancel-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var r = await GhidraHeadless.AnalyzeAsync(ghidra!, Sample, workRoot: workRoot, ct: cts.Token);
 
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-        var r = await GhidraHeadless.AnalyzeAsync(ghidra!, Sample, ct: cts.Token);
-
-        Assert.Equal(GhidraRunStatus.Cancelado, r.Status);
-        var left = Directory.Exists(tempRoot) ? Directory.GetDirectories(tempRoot).Where(d => !existing.Contains(d)) : [];
-        Assert.Empty(left);
+            Assert.Equal(GhidraRunStatus.Cancelado, r.Status);
+            Assert.Empty(Directory.Exists(workRoot) ? Directory.GetFileSystemEntries(workRoot) : []);
+        }
+        finally { if (Directory.Exists(workRoot)) Directory.Delete(workRoot, true); }
     }
 
     private static string Hash(string path) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path)));

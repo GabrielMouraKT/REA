@@ -22,6 +22,15 @@ public static class NavigationCatalog
     public const string ResearchPackets = "research.packets";
     public const string ResearchTcp = "research.tcp";
     public const string EvidenceCaptures = "evidence.captures";
+    public const string ResearchHttp = "research.http";
+    public const string ResearchProtocol = "research.protocol";
+    public const string ResearchProtobuf = "research.protobuf";
+    public const string ResearchBinary = "research.binary";
+    public const string ResearchFiles = "research.files";
+    public const string ResearchGhidra = "research.ghidra";
+    public const string ResearchKali = "research.kali";
+    public const string EvidenceFiles = "evidence.files";
+    public const string SettingsIntegrations = "settings.integrations";
 
     public static IReadOnlyList<NavSection> Sections { get; } =
     [
@@ -37,13 +46,13 @@ public static class NavigationCatalog
             new(ResearchCapture, "Network Capture", 2, true, "Captura real com Npcap/SharpPcap, filtros BPF, PCAPNG.", "Npcap 1.90 (instalado), SharpPcap, PacketDotNet"),
             new(ResearchPackets, "Packet Inspector", 2, true, "Pacotes com cabeçalhos, flags, hex e ASCII.", "PacketDotNet"),
             new(ResearchTcp, "TCP Stream Explorer", 2, true, "Reconstrução de fluxos TCP com detecção de lacunas e retransmissões."),
-            new("research.http", "HTTP/HTTPS Analyzer", 3, false, "Importação HAR/SAZ e análise via TShark; HTTPS só com chaves próprias.", "TShark 4.6.9 (instalado), Fiddler opcional"),
-            new("research.protocol", "Protocol Explorer", 3, false, "Padrões, framing, campos e hipóteses de serialização."),
-            new("research.protobuf", "Protobuf Analyzer", 3, false, "Decodificação wire-format, parser .proto, comparação."),
-            new("research.binary", "Binary Analysis", 3, false, "PE/ELF, seções, imports, strings, hashes, visualizador hex.", "REA CLI (instalado)"),
-            new("research.files", "File Analysis", 3, false, "Formatos, duplicados, manifestos, comparação entre versões."),
-            new("research.ghidra", "Ghidra Integration", 3, false, "analyzeHeadless assíncrono, funções, strings, xrefs.", "Ghidra 12.1.4 + Java 21 (instalados)"),
-            new("research.kali", "Kali Tools", 3, false, "Detecção de WSL/Kali e catálogo de ferramentas.", "WSL2 + Kali (não instalados)"),
+            new(ResearchHttp, "HTTP/HTTPS Analyzer", 3, true, "HTTP de capturas (via TShark) ou de arquivos HAR; HTTPS aparece como cifrado, credenciais ocultadas.", "TShark (Wireshark)"),
+            new(ResearchProtocol, "Protocol Explorer", 3, true, "Hipóteses de enquadramento, opcodes candidatos e corpo Protobuf sobre fluxos TCP."),
+            new(ResearchProtobuf, "Protobuf Analyzer", 3, true, "Decodificação wire-format sem .proto, rótulos com .proto e montador de mensagens de teste."),
+            new(ResearchBinary, "Binary Analysis", 3, true, "PE/ELF, seções, imports, exports, strings, hashes e visualizador hex."),
+            new(ResearchFiles, "File Analysis", 3, true, "Inventário de pastas, duplicados, manifestos e comparação entre versões."),
+            new(ResearchGhidra, "Ghidra Integration", 3, true, "Análise headless assíncrona e cancelável: funções, externos e strings.", "Ghidra + Java 21 (do usuário)"),
+            new(ResearchKali, "Kali Tools", 3, true, "Detecção de WSL/Kali e verificação de um catálogo fixo de ferramentas.", "WSL2 + distribuição Kali"),
         ]),
         new("COMPARATIVE ANALYSIS", [
             new("compare.environments", "Environment Profiles", 4, false, "Perfis completos com hashes, endpoints e histórico."),
@@ -112,13 +121,13 @@ public static class NavigationCatalog
         ]),
         new("EVIDENCE", [
             new(EvidenceCaptures, "Captures", 2, true, "Capturas por projeto com SHA-256."),
-            new("evidence.files", "Files", 3, false, "Arquivos importados, originais preservados."),
+            new(EvidenceFiles, "Files", 3, true, "Arquivos importados com SHA-256; originais preservados."),
             new("evidence.findings", "Findings", 4, false, "Descobertas com origem, método e confiança."),
             new("evidence.reports", "Reports", 4, false, "Relatórios exportáveis."),
             new(ActivityLog, "Atividades", 1, true, "Auditoria legível de todas as alterações."),
         ]),
         new("SETTINGS", [
-            new("settings.integrations", "Integrations", 3, false, "Configuração de caminhos do REA CLI, Ghidra e TShark."),
+            new(SettingsIntegrations, "Integrations", 3, true, "Pasta do Ghidra e ferramentas detectadas."),
             new(SettingsDatabase, "Database", 1, true, "Arquivo, tamanho e migrações aplicadas."),
             new(SettingsTools, "Tools", 1, true, "Detecção real das ferramentas externas instaladas."),
             new("settings.appearance", "Appearance", 9, false, "Tema escuro é o padrão; temas adicionais na finalização."),

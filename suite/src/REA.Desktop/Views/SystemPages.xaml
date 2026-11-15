@@ -47,7 +47,7 @@
                         <Button Content="+ Novo projeto" Margin="8,0,0,0" Command="{Binding NewProjectCommand}"/>
                     </StackPanel>
                     <TextBlock Style="{StaticResource MutedText}" VerticalAlignment="Center"
-                               Text="Indicadores lidos do banco local. Binários, mensagens e opcodes aparecerão quando os módulos das fases 3+ existirem."/>
+                               Text="Indicadores lidos do banco local. Arquivos analisados ficam em Evidence › Files; descobertas e opcodes confirmados chegam com a Fase 4."/>
                 </DockPanel>
                 <ProgressBar Style="{StaticResource LoadingBar}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
 

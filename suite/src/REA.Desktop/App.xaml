@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="Views/ProjectPages.xaml"/>
                 <ResourceDictionary Source="Views/SystemPages.xaml"/>
                 <ResourceDictionary Source="Views/ResearchPages.xaml"/>
+                <ResourceDictionary Source="Views/AnalysisPages.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
