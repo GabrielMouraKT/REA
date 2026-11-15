@@ -24,6 +24,7 @@ public sealed class EnvironmentInputValidator : AbstractValidator<EnvironmentInp
 public sealed class EnvironmentService(
     IProjectRepository projects,
     IEnvironmentRepository environments,
+    ICaptureRepository captures,
     IActivityLog activity,
     IUnitOfWork unitOfWork,
     IClock clock,
@@ -66,12 +67,13 @@ public sealed class EnvironmentService(
         return OperationResult.Ok();
     }
 
-    /// <summary>Fase 1: ambiente ainda não tem evidências, então a exclusão é definitiva.
-    /// Quando capturas/evidências existirem (Fase 2+), ambientes com histórico serão bloqueados aqui.</summary>
+    /// <summary>Exclusão definitiva só para ambiente sem evidências (capturas). Com histórico, não exclui.</summary>
     public async Task<OperationResult> DeleteAsync(Guid projectId, Guid id, CancellationToken ct = default)
     {
         var env = await environments.GetAsync(projectId, id, ct);
         if (env is null) return OperationResult.Fail("Ambiente não encontrado.");
+        if (await captures.CountByEnvironmentAsync(id, ct) > 0)
+            return OperationResult.Fail("Este ambiente tem capturas registradas e não pode ser excluído. Arquive o projeto se ele não for mais usado.");
         environments.Remove(env);
         Audit("Excluir ambiente", env, $"Ambiente \"{env.Name}\" excluído.", Describe(env), null);
         await unitOfWork.SaveChangesAsync(ct);

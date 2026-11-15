@@ -47,11 +47,38 @@
                         <Button Content="+ Novo projeto" Margin="8,0,0,0" Command="{Binding NewProjectCommand}"/>
                     </StackPanel>
                     <TextBlock Style="{StaticResource MutedText}" VerticalAlignment="Center"
-                               Text="Indicadores lidos do banco local. Capturas, pacotes, binários e opcodes aparecerão quando os módulos das fases 2+ existirem."/>
+                               Text="Indicadores lidos do banco local. Binários, mensagens e opcodes aparecerão quando os módulos das fases 3+ existirem."/>
                 </DockPanel>
                 <ProgressBar Style="{StaticResource LoadingBar}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
 
-                <UniformGrid Columns="5" Margin="-6,0,-6,0">
+                <UniformGrid Columns="4" Margin="-6,0,-6,0">
+                    <Border Style="{StaticResource Card}" Margin="6">
+                        <StackPanel>
+                            <TextBlock Text="Capturas" Style="{StaticResource MutedText}"/>
+                            <TextBlock Text="{Binding Captures}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="6">
+                        <StackPanel>
+                            <TextBlock Text="Pacotes analisados" Style="{StaticResource MutedText}"/>
+                            <TextBlock Text="{Binding PacketsAnalyzed}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="6">
+                        <StackPanel>
+                            <TextBlock Text="Fluxos TCP" Style="{StaticResource MutedText}"/>
+                            <TextBlock Text="{Binding TcpStreams}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="6">
+                        <StackPanel>
+                            <TextBlock Text="Módulos implementados" Style="{StaticResource MutedText}"/>
+                            <TextBlock Text="{Binding Modules}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <UniformGrid Columns="4" Margin="-6,0,-6,0">
                     <Border Style="{StaticResource Card}" Margin="6">
                         <StackPanel>
                             <TextBlock Text="Projetos ativos" Style="{StaticResource MutedText}"/>
@@ -68,12 +95,6 @@
                         <StackPanel>
                             <TextBlock Text="Ambientes" Style="{StaticResource MutedText}"/>
                             <TextBlock Text="{Binding Environments}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource Card}" Margin="6">
-                        <StackPanel>
-                            <TextBlock Text="Módulos implementados" Style="{StaticResource MutedText}"/>
-                            <TextBlock Text="{Binding Modules}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource Card}" Margin="6">

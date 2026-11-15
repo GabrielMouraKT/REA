@@ -23,6 +23,7 @@ public sealed class ProjectInputValidator : AbstractValidator<ProjectInput>
 public sealed class ProjectService(
     IProjectRepository projects,
     IEnvironmentRepository environments,
+    ICaptureRepository captures,
     IActivityLog activity,
     IUnitOfWork unitOfWork,
     IClock clock,
@@ -131,6 +132,8 @@ public sealed class ProjectService(
         if (project is null) return OperationResult.Fail("Projeto não encontrado.");
         if (await environments.CountAsync(id, ct) > 0)
             return OperationResult.Fail("Este projeto tem ambientes cadastrados. Arquive o projeto em vez de excluir.");
+        if (await captures.CountByProjectAsync(id, ct) > 0)
+            return OperationResult.Fail("Este projeto tem capturas registradas. Arquive o projeto em vez de excluir.");
 
         projects.Remove(project);
         Audit("Excluir projeto", project.Id, null, $"Projeto \"{project.Name}\" excluído definitivamente.", Describe(project), null);

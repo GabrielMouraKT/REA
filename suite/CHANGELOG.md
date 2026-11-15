@@ -1,5 +1,18 @@
 # Changelog — REA Advanced Suite
 
+## 0.2.0 — 2026-11-15 (Fase 2)
+
+### Adicionado
+- Network Capture real (Npcap + SharpPcap): interfaces, BPF validado, limites, estatísticas, PCAPNG contínuo.
+- Evidence › Captures: importação PCAP/PCAPNG com SHA-256, detalhes, validação com TShark, reanálise, exportação.
+- Packet Inspector: paginação em disco, filtros, camadas decodificadas, hex/ASCII, CSV.
+- TCP Stream Explorer: reordenação, retransmissões, lacunas, completude, linha do tempo, exportação de bytes.
+- Leitor/gravador PCAPNG e PCAP próprios; migração AddCaptures.
+- Recuperação de captura interrompida por queda; bloqueio de exclusão de ambiente/projeto com capturas.
+- Dashboard com capturas, pacotes e fluxos; carregamento em duas etapas.
+- Seção BOT LAB AI no menu (planejada, Fases 4 e 7).
+- Guia do usuário em HTML (docs/guia/index.html) com CSS e JS.
+
 ## 0.1.0 — 2026-11-15 (Fases 0 e 1)
 
 ### Adicionado

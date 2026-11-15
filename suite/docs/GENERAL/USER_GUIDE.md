@@ -1,6 +1,8 @@
 # Guia do usuário — REA Advanced Suite
 
-> Versão 0.1.0 (Fase 1 concluída) · atualizado em 15/11/2026
+> Versão 0.2.0 (Fases 1 e 2 concluídas) · atualizado em 15/11/2026
+>
+> **Versão principal deste guia: [página HTML](../guia/index.html)** (busca, tema claro/escuro, imagens). Este arquivo é a versão em texto.
 >
 > Este guia ensina a usar **a ferramenta inteira**: o aplicativo desktop da suíte e o motor de
 > engenharia reversa **REA** (CLI/MCP) que vem no mesmo repositório. Cada seção diz claramente o
@@ -214,10 +216,10 @@ Os arquivos têm o formato `rea-AAAAMMDD-HHMMSS-mmm-<tipo>.db` e podem ser copia
 
 | Área                                 | Itens                                                                                                                     | Fase |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- | ---- |
-| Research                             | Network Capture, Packet Inspector, TCP Stream Explorer                                                                    | 2    |
 | Research                             | HTTP/HTTPS Analyzer, Protocol Explorer, Protobuf Analyzer, Binary Analysis, File Analysis, Ghidra Integration, Kali Tools | 3    |
 | Comparative Analysis                 | Environment Profiles, Client/Protocol/File Comparison, Session Timeline                                                   | 4    |
-| Evidence                             | Captures (2), Files (3), Findings e Reports (4)                                                                           | 2–4  |
+| Evidence                             | Files (3), Findings e Reports (4)                                                                                         | 3–4  |
+| Bot Lab AI                           | Manual Gameplay, Recorder, History, Evidence Explorer (4); AI Gameplay, Observer, Visual Recognition, Scenarios (7)       | 4, 7 |
 | Launcher Studio                      | Builder, Visual Editor, Asset Manager, Configuration, Update/Integrity Manager, Build & Release                           | 5    |
 | Portal Studio                        | Website Builder, Account Portal, Download Center, News & Events, API Configuration, Deployment                            | 6    |
 | Wiki & Knowledge / GM & Server Admin | Catálogos, Opcode Database, GM Command Wiki, adaptadores e console                                                        | 7    |
@@ -397,8 +399,7 @@ Logs detalhados: `%LOCALAPPDATA%\REA\logs`.
 
 ## 9. Perguntas frequentes
 
-**O REA já captura pacotes sozinho?** Ainda não. A captura real foi validada neste PC com Npcap + TShark; o
-módulo Network Capture da suíte (SharpPcap) é a Fase 2.
+**O REA já captura pacotes sozinho?** Sim, desde a Fase 2: Research › Network Capture (Npcap + SharpPcap), validado com tráfego real e comparado com o TShark.
 
 **Posso usar o REA com outros jogos além do MIR4?** Sim. Projetos e ambientes são genéricos; o template MIR4
 (Fase 8) é só um modelo de organização.
@@ -408,3 +409,18 @@ detectado no computador.
 
 **Excluí um projeto por engano. Dá para recuperar?** Sim, restaurando um backup anterior em Settings › Backup
 (o estado atual é salvo antes, então a restauração também pode ser desfeita).
+
+---
+
+## 10. Fase 2 — Rede (resumo)
+
+Instruções completas, com imagens, na [página HTML](../guia/index.html#fase2-visao).
+
+| Tela                           | Como usar                                                                                                                                                                                                                                   |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Research › Network Capture     | Projeto, nome, interface (Loopback para tráfego local), filtro BPF opcional (ex.: `tcp port 7000`), limites opcionais → **Iniciar captura** → **Parar**. Gera PCAPNG com SHA-256 e estatísticas.                                            |
+| Evidence › Captures            | Escolha um projeto no filtro para **Importar PCAP/PCAPNG** (o original não é alterado). Selecione uma linha para **Abrir**, **Fluxos TCP**, **Detalhes**, **Validar com TShark**, **Reanalisar**, **Exportar cópia**, **Mostrar na pasta**. |
+| Research › Packet Inspector    | Escolha a captura; filtre por protocolo, endereço, porta, texto ou só com dados; clique num pacote para ver camadas e hex/ASCII; **Exportar CSV**.                                                                                          |
+| Research › TCP Stream Explorer | Escolha a captura e o fluxo; veja os bytes por direção, lacunas e linha do tempo; **Exportar bytes**. Estados: Completo, Sem lacunas (início/fim fora da captura), Incompleto.                                                              |
+
+Regras: capturas são evidência (sem exclusão); ambiente/projeto com capturas não pode ser excluído; captura ativa durante uma queda volta como **Interrompida** na próxima abertura. O backup do banco não inclui a pasta `captures`: copie-a junto.

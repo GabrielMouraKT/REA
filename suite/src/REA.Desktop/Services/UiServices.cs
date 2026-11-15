@@ -57,6 +57,8 @@ public interface IDialogService
     /// <summary>Confirmação para ações destrutivas. Nunca usada em operações rotineiras.</summary>
     bool Confirm(string title, string message, string confirmLabel);
     string? Prompt(string title, string message, string initialValue, string confirmLabel);
+    string? OpenFile(string title, string filter);
+    string? SaveFile(string title, string defaultName, string filter);
 }
 
 public sealed class DialogService : IDialogService
@@ -71,6 +73,18 @@ public sealed class DialogService : IDialogService
     {
         var dlg = new Views.DialogWindow(title, message, confirmLabel, input: initialValue) { Owner = Application.Current.MainWindow };
         return dlg.ShowDialog() == true ? dlg.InputValue : null;
+    }
+
+    public string? OpenFile(string title, string filter)
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true };
+        return dlg.ShowDialog(Application.Current.MainWindow) == true ? dlg.FileName : null;
+    }
+
+    public string? SaveFile(string title, string defaultName, string filter)
+    {
+        var dlg = new Microsoft.Win32.SaveFileDialog { Title = title, FileName = defaultName, Filter = filter, OverwritePrompt = true };
+        return dlg.ShowDialog(Application.Current.MainWindow) == true ? dlg.FileName : null;
     }
 }
 

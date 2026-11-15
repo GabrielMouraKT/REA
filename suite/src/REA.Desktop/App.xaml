@@ -8,6 +8,7 @@
                 <ResourceDictionary Source="Themes/Theme.xaml"/>
                 <ResourceDictionary Source="Views/ProjectPages.xaml"/>
                 <ResourceDictionary Source="Views/SystemPages.xaml"/>
+                <ResourceDictionary Source="Views/ResearchPages.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

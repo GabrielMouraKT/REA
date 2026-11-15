@@ -82,12 +82,12 @@ public class NavigationCatalogTests
         var titles = NavigationCatalog.Sections.Select(s => s.Title).ToList();
         Assert.Equal(
             ["DASHBOARD", "PROJETOS", "RESEARCH", "COMPARATIVE ANALYSIS", "LAUNCHER STUDIO", "PORTAL STUDIO",
-             "WIKI & KNOWLEDGE", "GM & SERVER ADMIN", "EVIDENCE", "SETTINGS"],
+             "WIKI & KNOWLEDGE", "GM & SERVER ADMIN", "BOT LAB AI", "EVIDENCE", "SETTINGS"],
             titles);
     }
 
     [Fact]
-    public void Implemented_items_are_exactly_the_phase_one_pages()
+    public void Implemented_items_are_exactly_the_phase_one_and_two_pages()
     {
         var implemented = NavigationCatalog.AllItems.Where(i => i.Implemented).Select(i => i.Key).Order().ToList();
         Assert.Equal(
@@ -96,6 +96,8 @@ public class NavigationCatalogTests
                 NavigationCatalog.Dashboard, NavigationCatalog.ActivityLog, NavigationCatalog.ProjectsEnvironments,
                 NavigationCatalog.ProjectsList, NavigationCatalog.ProjectsNew, NavigationCatalog.SettingsBackup,
                 NavigationCatalog.SettingsDatabase, NavigationCatalog.SettingsTools,
+                NavigationCatalog.ResearchCapture, NavigationCatalog.ResearchPackets, NavigationCatalog.ResearchTcp,
+                NavigationCatalog.EvidenceCaptures,
             }.Order(),
             implemented);
     }

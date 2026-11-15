@@ -18,6 +18,10 @@ public static class NavigationCatalog
     public const string SettingsTools = "settings.tools";
     public const string SettingsBackup = "settings.backup";
     public const string ActivityLog = "evidence.activity";
+    public const string ResearchCapture = "research.capture";
+    public const string ResearchPackets = "research.packets";
+    public const string ResearchTcp = "research.tcp";
+    public const string EvidenceCaptures = "evidence.captures";
 
     public static IReadOnlyList<NavSection> Sections { get; } =
     [
@@ -30,9 +34,9 @@ public static class NavigationCatalog
             new(ProjectsEnvironments, "Ambientes", 1, true, "Perfis de ambiente por projeto (cliente, versão, diretório)."),
         ]),
         new("RESEARCH", [
-            new("research.capture", "Network Capture", 2, false, "Captura real com Npcap/SharpPcap, filtros BPF, PCAPNG.", "Npcap 1.90 (instalado), SharpPcap, PacketDotNet"),
-            new("research.packets", "Packet Inspector", 2, false, "Pacotes com cabeçalhos, flags, hex e ASCII.", "PacketDotNet"),
-            new("research.tcp", "TCP Stream Explorer", 2, false, "Reconstrução de fluxos TCP com detecção de lacunas e retransmissões."),
+            new(ResearchCapture, "Network Capture", 2, true, "Captura real com Npcap/SharpPcap, filtros BPF, PCAPNG.", "Npcap 1.90 (instalado), SharpPcap, PacketDotNet"),
+            new(ResearchPackets, "Packet Inspector", 2, true, "Pacotes com cabeçalhos, flags, hex e ASCII.", "PacketDotNet"),
+            new(ResearchTcp, "TCP Stream Explorer", 2, true, "Reconstrução de fluxos TCP com detecção de lacunas e retransmissões."),
             new("research.http", "HTTP/HTTPS Analyzer", 3, false, "Importação HAR/SAZ e análise via TShark; HTTPS só com chaves próprias.", "TShark 4.6.9 (instalado), Fiddler opcional"),
             new("research.protocol", "Protocol Explorer", 3, false, "Padrões, framing, campos e hipóteses de serialização."),
             new("research.protobuf", "Protobuf Analyzer", 3, false, "Decodificação wire-format, parser .proto, comparação."),
@@ -92,8 +96,22 @@ public static class NavigationCatalog
             new("gm.audit", "Logs & Audit", 7, false, "Auditoria de operações administrativas."),
             new("gm.console", "Command Console", 7, false, "Console com validação, dry-run e confirmação."),
         ]),
+        new("BOT LAB AI", [
+            new("botlab.dashboard", "Dashboard", 4, false, "Sessão atual: modo, processo, PID, tempo, FPS, rede, pacotes, screenshots, eventos e espaço em disco."),
+            new("botlab.manual", "Manual Gameplay", 4, false, "Você joga normalmente; o REA registra tela, eventos marcados por você e tráfego (passivo). Não exige IA.",
+                "Network Capture (Fase 2, pronto), captura de tela do Windows"),
+            new("botlab.ai", "AI Gameplay", 7, false, "Agente visual com execução assistida de cenários, SOMENTE em ambientes de laboratório próprios e com aprovação humana de cada ação.",
+                "Processo auxiliar Python (Named Pipes, JSON versionado); referências AI.game.agent e Pixeler a confirmar"),
+            new("botlab.observer", "Live Observer", 7, false, "Observação visual em tempo real sem executar ações; UNKNOWN_STATE quando não houver confiança."),
+            new("botlab.vision", "Visual Recognition", 7, false, "Cadastro de elementos visuais, OCR e estados da interface."),
+            new("botlab.scenarios", "Scenario Builder", 7, false, "Cenários de teste com passos, validações e pontos de aprovação."),
+            new("botlab.recorder", "Session Recorder", 4, false, "Gravação sincronizada (relógio monotônico + UTC) de tela, eventos, pacotes e logs."),
+            new("botlab.history", "Session History", 4, false, "Sessões por data, projeto, aplicação e modo; abrir timeline; comparar; exportar."),
+            new("botlab.evidence", "Evidence Explorer", 4, false, "PCAPNG, screenshots, logs, relatórios, metadados, hashes e anotações por sessão."),
+            new("botlab.agent", "Agent Configuration", 7, false, "Modelos, limites e permissões do agente; funciona sem Ollama no modo observação."),
+        ]),
         new("EVIDENCE", [
-            new("evidence.captures", "Captures", 2, false, "Capturas por projeto com SHA-256."),
+            new(EvidenceCaptures, "Captures", 2, true, "Capturas por projeto com SHA-256."),
             new("evidence.files", "Files", 3, false, "Arquivos importados, originais preservados."),
             new("evidence.findings", "Findings", 4, false, "Descobertas com origem, método e confiança."),
             new("evidence.reports", "Reports", 4, false, "Relatórios exportáveis."),

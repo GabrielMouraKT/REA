@@ -11,6 +11,7 @@ public sealed class ReaPaths
     public string DatabasePath => Path.Combine(DataDirectory, "rea.db");
     public string BackupDirectory => Path.Combine(Root, "backups");
     public string LogDirectory => Path.Combine(Root, "logs");
+    public string CaptureDirectory => Path.Combine(Root, "captures");
 
     public ReaPaths(string root)
     {
@@ -31,6 +32,7 @@ public sealed class ReaPaths
         Directory.CreateDirectory(DataDirectory);
         Directory.CreateDirectory(BackupDirectory);
         Directory.CreateDirectory(LogDirectory);
+        Directory.CreateDirectory(CaptureDirectory);
     }
 
     public string ConnectionString => $"Data Source={DatabasePath};Foreign Keys=True";

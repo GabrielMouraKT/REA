@@ -90,6 +90,10 @@ public sealed partial class ShellViewModel : ObservableObject, INavigator
         NavigationCatalog.SettingsDatabase => _services.GetRequiredService<DatabaseViewModel>(),
         NavigationCatalog.SettingsTools => _services.GetRequiredService<ToolsViewModel>(),
         NavigationCatalog.SettingsBackup => _services.GetRequiredService<BackupViewModel>(),
+        NavigationCatalog.ResearchCapture => _services.GetRequiredService<NetworkCaptureViewModel>(),
+        NavigationCatalog.ResearchPackets => _services.GetRequiredService<PacketInspectorViewModel>(),
+        NavigationCatalog.ResearchTcp => _services.GetRequiredService<TcpStreamsViewModel>(),
+        NavigationCatalog.EvidenceCaptures => _services.GetRequiredService<CapturesViewModel>(),
         _ => throw new InvalidOperationException($"Página implementada sem tela: {key}"),
     };
 }

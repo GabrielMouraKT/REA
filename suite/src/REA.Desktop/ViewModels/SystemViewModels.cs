@@ -34,17 +34,21 @@ public sealed class ToolRow(ToolStatus t)
     public string Requirement { get; } = t.Requirement;
 }
 
-public sealed partial class DashboardViewModel(ScopedRunner runner, NotificationService notify, INavigator navigator)
+public sealed partial class DashboardViewModel(ScopedRunner runner, NotificationService notify, INavigator navigator, IToolDetector toolDetector)
     : ObservableObject, IPage
 {
     public string Title => "Dashboard";
 
     [ObservableProperty] private bool _isLoading;
-    [ObservableProperty] private int _activeProjects;
-    [ObservableProperty] private int _archivedProjects;
-    [ObservableProperty] private int _environments;
-    [ObservableProperty] private string _modules = "";
-    [ObservableProperty] private string _toolsSummary = "";
+    // Texto "…" até os dados chegarem: nunca exibir 0 enquanto carrega.
+    [ObservableProperty] private string _activeProjects = "…";
+    [ObservableProperty] private string _archivedProjects = "…";
+    [ObservableProperty] private string _environments = "…";
+    [ObservableProperty] private string _captures = "…";
+    [ObservableProperty] private string _packetsAnalyzed = "…";
+    [ObservableProperty] private string _tcpStreams = "…";
+    [ObservableProperty] private string _modules = "…";
+    [ObservableProperty] private string _toolsSummary = "Detectando…";
     public ObservableCollection<ActivityRow> Activity { get; } = [];
     public ObservableCollection<ToolRow> Tools { get; } = [];
     public bool HasNoActivity => !IsLoading && Activity.Count == 0;
@@ -57,16 +61,25 @@ public sealed partial class DashboardViewModel(ScopedRunner runner, Notification
         IsLoading = true;
         try
         {
-            var s = await runner.RunAsync<DashboardService, DashboardSnapshot>(d => d.GetAsync());
-            ActiveProjects = s.ActiveProjects;
-            ArchivedProjects = s.ArchivedProjects;
-            Environments = s.Environments;
+            // 1) contagens do banco (rápido)
+            var s = await runner.RunAsync<DashboardService, DashboardSnapshot>(d => d.GetAsync(includeTools: false));
+            ActiveProjects = s.ActiveProjects.ToString("N0");
+            ArchivedProjects = s.ArchivedProjects.ToString("N0");
+            Environments = s.Environments.ToString("N0");
+            Captures = s.Captures.ToString("N0");
+            PacketsAnalyzed = s.PacketsAnalyzed.ToString("N0");
+            TcpStreams = s.TcpStreams.ToString("N0");
             Modules = $"{s.ImplementedModules} de {s.TotalModules}";
-            ToolsSummary = $"{s.Tools.Count(t => t.Available)} de {s.Tools.Count} disponíveis";
             Activity.Clear();
             foreach (var a in s.RecentActivity) Activity.Add(new ActivityRow(a));
+            OnPropertyChanged(nameof(HasNoActivity));
+
+            // 2) ferramentas externas (executa processos; pode levar alguns segundos)
+            ToolsSummary = "Detectando…";
+            var tools = await toolDetector.DetectAsync();
+            ToolsSummary = $"{tools.Count(t => t.Available)} de {tools.Count} disponíveis";
             Tools.Clear();
-            foreach (var t in s.Tools) Tools.Add(new ToolRow(t));
+            foreach (var t in tools) Tools.Add(new ToolRow(t));
         }
         catch (Exception ex)
         {

@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\REA.Core\REA.Core.csproj" />
     <ProjectReference Include="..\REA.Infrastructure\REA.Infrastructure.csproj" />
+    <ProjectReference Include="..\REA.NetworkCapture\REA.NetworkCapture.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />

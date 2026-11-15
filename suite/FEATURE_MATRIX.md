@@ -2,26 +2,28 @@
 
 Legenda: **Pronto** = implementado + testado · **Planejado (Fn)** = não implementado, fase prevista.
 
-| Área            | Funcionalidade                                       | Situação                                | Validação                                                             |
-| --------------- | ---------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------- |
-| Fundação        | Solução, camadas, DI, Generic Host, Serilog          | Pronto                                  | Build sem avisos                                                      |
-| Fundação        | Banco SQLite + EF Core + migrações                   | Pronto                                  | `Migrations_are_all_applied_on_a_fresh_database`                      |
-| Fundação        | Persistência após reinício                           | Pronto                                  | `Project_and_environment_survive_application_restart`                 |
-| Projetos        | Criar, editar, listar, buscar, paginar               | Pronto                                  | Testes de integração + fluxo real via UI Automation                   |
-| Projetos        | Duplicar (com ambientes, sem evidências)             | Pronto                                  | `Duplicate_copies_environments_into_a_new_project`                    |
-| Projetos        | Arquivar/reativar idempotente                        | Pronto                                  | `..._archive_is_idempotent`                                           |
-| Projetos        | Excluir só sem histórico                             | Pronto                                  | idem                                                                  |
-| Ambientes       | CRUD por projeto, isolamento entre projetos          | Pronto                                  | `Environment_of_another_project_is_reported_as_not_found`             |
-| Auditoria       | Registro legível antes/depois                        | Pronto                                  | Testes de persistência                                                |
-| Backup          | Manual, automático 24 h, restauração segura          | Pronto                                  | `BackupTests` (4 cenários, incl. arquivo corrompido e path traversal) |
-| Settings        | Database, Tools (detecção real)                      | Pronto                                  | `ToolDetectionTests` + verificação visual                             |
-| Dashboard       | Indicadores reais                                    | Pronto (parcial: só métricas da Fase 1) | Verificação visual                                                    |
-| Release         | Publicação self-contained win-x64                    | Pronto                                  | Executado sem .NET via `publish.ps1`                                  |
-| Release         | Instalador MSI                                       | Planejado (F9)                          | Requer WiX                                                            |
-| Research        | Network Capture, Packet Inspector, TCP Stream        | Planejado (F2)                          | Captura real já validada com TShark/Npcap (pré-requisito)             |
-| Research        | HTTP, Protocol, Protobuf, Binary, File, Ghidra, Kali | Planejado (F3)                          | —                                                                     |
-| Comparative     | Perfis, comparações, timeline, correlação            | Planejado (F4)                          | —                                                                     |
-| Launcher Studio | Todos os itens                                       | Planejado (F5)                          | —                                                                     |
-| Portal Studio   | Todos os itens                                       | Planejado (F6)                          | —                                                                     |
-| Wiki / GM       | Todos os itens                                       | Planejado (F7)                          | —                                                                     |
-| MIR4 Research   | Template 45 categorias                               | Planejado (F8)                          | —                                                                     |
+| Área                | Funcionalidade                                                                                  | Situação       | Validação                                |
+| ------------------- | ----------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------- |
+| Fundação            | Solução, camadas, DI, Host, Serilog, SQLite/EF, migrações                                       | Pronto         | Build sem avisos; testes de persistência |
+| Projetos            | CRUD, busca, paginação, duplicar, arquivar, excluir sem histórico                               | Pronto         | Integração + UI Automation               |
+| Ambientes           | CRUD por projeto, isolamento, bloqueio de exclusão com capturas                                 | Pronto         | Integração                               |
+| Auditoria           | Registro legível antes/depois                                                                   | Pronto         | Integração                               |
+| Backup              | Manual, automático, restauração segura                                                          | Pronto         | BackupTests                              |
+| Settings            | Database, Tools (detecção real)                                                                 | Pronto         | Integração + visual                      |
+| Dashboard           | Projetos, ambientes, capturas, pacotes, fluxos TCP, módulos, ferramentas                        | Pronto         | Integração + visual                      |
+| Release             | Publicação self-contained win-x64                                                               | Pronto         | publish.ps1 executado                    |
+| Network Capture     | Npcap/SharpPcap, BPF validado, limites, estatísticas, PCAPNG contínuo                           | Pronto         | Captura real em loopback (teste + UI)    |
+| Captures            | Importação com SHA-256, detalhes, exportação, validação TShark, reanálise, recuperação de queda | Pronto         | Integração (inclui queda simulada)       |
+| Packet Inspector    | Paginação em disco, filtros, camadas, hex/ASCII, CSV                                            | Pronto         | NetworkTests + UI                        |
+| TCP Stream Explorer | Reordenação, retransmissões, lacunas, completude, timeline, exportação                          | Pronto         | 7 cenários + captura real + TShark       |
+| Formatos            | PCAPNG (SHB/IDB/EPB/SPB/OPB), PCAP µs/ns LE/BE, truncado/corrompido                             | Pronto         | NetworkTests                             |
+| Captura             | Pausar                                                                                          | Não suportado  | Limitação do libpcap (KNOWN_ISSUES #10)  |
+| Release             | Instalador MSI                                                                                  | Planejado (F9) | Requer WiX                               |
+| Research            | HTTP, Protocol, Protobuf, Binary, File, Ghidra, Kali                                            | Planejado (F3) | —                                        |
+| Comparative         | Perfis, comparações, timeline, correlação                                                       | Planejado (F4) | —                                        |
+| Bot Lab AI          | Manual Gameplay, Recorder, History, Evidence Explorer, Dashboard, Session Intelligence          | Planejado (F4) | —                                        |
+| Bot Lab AI          | AI Gameplay, Live Observer, Visual Recognition, Scenario Builder, Agent Configuration           | Planejado (F7) | —                                        |
+| Launcher Studio     | Todos os itens                                                                                  | Planejado (F5) | —                                        |
+| Portal Studio       | Todos os itens                                                                                  | Planejado (F6) | —                                        |
+| Wiki / GM           | Todos os itens                                                                                  | Planejado (F7) | —                                        |
+| MIR4 Research       | Template 45 categorias                                                                          | Planejado (F8) | —                                        |

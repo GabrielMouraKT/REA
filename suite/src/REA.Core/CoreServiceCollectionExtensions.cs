@@ -11,6 +11,7 @@ public static class CoreServiceCollectionExtensions
         services.AddScoped<ProjectService>();
         services.AddScoped<EnvironmentService>();
         services.AddScoped<DashboardService>();
+        services.AddScoped<CaptureService>();
         return services;
     }
 }

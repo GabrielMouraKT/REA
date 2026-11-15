@@ -1,28 +1,26 @@
 # Status do desenvolvimento
 
-**Última atualização:** 2026-11-15 · **Branch:** `feature/rea-advanced-suite` · **Versão:** 0.1.0
+**Última atualização:** 2026-11-15 · **Branch:** `feature/rea-advanced-suite` · **Versão:** 0.2.0
 
 ## Onde paramos
 
-Fases 0 e 1 concluídas e testadas. **Próxima: Fase 2 (Network Research)** — ver `IMPLEMENTATION_PLAN.md`.
+Fases 0, 1 e 2 concluídas e testadas. **Próxima: Fase 3 (Protocol & Binary Analysis)**, ou antecipar o
+**Bot Lab › Manual Gameplay** (planejado na Fase 4) se o dono preferir — ver `IMPLEMENTATION_PLAN.md`.
 
 ## Para retomar
 
-1. `cd suite; .\scripts\check-environment.ps1` (Npcap, TShark, Ghidra e REA CLI já presentes nesta máquina).
-2. `.\scripts\build.ps1; .\scripts\test.ps1` → esperado: 35/35 aprovados.
-3. Ler `KNOWN_ISSUES.md` e os “Próximos passos da Fase 2” em `IMPLEMENTATION_PLAN.md`.
+1. `cd suite; .\scripts\check-environment.ps1`
+2. `.\scripts\build.ps1; .\scripts\test.ps1` → esperado: **66/66** (testes de captura real exigem Npcap com loopback; sem ele são pulados com motivo).
+3. Ler `KNOWN_ISSUES.md`, `docs/RELATORIO_FASE2.md` e `docs/BOT_LAB/README.md`.
+4. Ao terminar cada fase: atualizar `docs/guia/index.html`, `docs/GENERAL/USER_GUIDE.md` e escrever `docs/RELATORIO_FASE<N>.md`.
 
-## Fase 1 — resultado
+## Fase 2 — resultado
 
-- Concluído: fundação, projetos, ambientes, auditoria, backup/restauração, detecção de ferramentas, dashboard, navegação completa, publicação self-contained, documentação.
-- Testes executados: 20 unitários + 15 integração (SQLite real) = 35 aprovados; fluxo de criação de projeto e validação de nome duplicado conferidos na interface real via UI Automation + capturas de tela.
-- Testes pendentes: fluxos de Ambientes, Backup e Duplicar exercitados só por testes de integração (não pela interface).
-- Problemas: ver `KNOWN_ISSUES.md` (#5 teste possivelmente instável sob execução concorrente).
+- Concluído: Network Capture, Evidence › Captures, Packet Inspector, TCP Stream Explorer, validação com TShark, recuperação de captura interrompida, métricas no Dashboard.
+- Critério obrigatório (captura real, PCAPNG, fechar, reabrir, ver, reconstruir, comparar com TShark): **aprovado** por teste automático com tráfego real e conferido na interface.
+- Testes: 20 unitários + 25 de rede + 21 de integração = 66 aprovados, 0 ignorados.
+- Detalhes: `docs/RELATORIO_FASE2.md`.
 
-## Fase 0 — resultado
+## Fases anteriores
 
-`docs/AUDITORIA_FASE0.md`.
-
-## Arquivos por fase
-
-Fase 0/1: todo o conteúdo de `suite/` (nenhum arquivo do motor REA em TypeScript foi alterado).
+- Fase 0: `docs/AUDITORIA_FASE0.md` · Fase 1: `docs/RELATORIO_FASES_0_1.md`.

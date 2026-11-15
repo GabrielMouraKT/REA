@@ -7,6 +7,8 @@ using REA.Core;
 using REA.Desktop.Services;
 using REA.Desktop.ViewModels;
 using REA.Infrastructure;
+using REA.NetworkCapture;
+using REA.PacketAnalyzer;
 using Serilog;
 
 namespace REA.Desktop;
@@ -37,6 +39,12 @@ public partial class App : Application
             {
                 services.AddReaCore();
                 services.AddReaInfrastructure(paths);
+                services.AddReaPacketAnalyzer();
+                services.AddReaNetworkCapture();
+                services.AddSingleton<NetworkCaptureViewModel>();
+                services.AddTransient<PacketInspectorViewModel>();
+                services.AddTransient<TcpStreamsViewModel>();
+                services.AddTransient<CapturesViewModel>();
                 services.AddSingleton<NotificationService>();
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<ScopedRunner>();
@@ -59,6 +67,9 @@ public partial class App : Application
             await _host.StartAsync();
             await _host.Services.GetRequiredService<DatabaseInitializer>().InitializeAsync();
             Log.Information("REA Advanced Suite iniciado. Dados em {Root}", paths.Root);
+            var recovered = await _host.Services.GetRequiredService<ScopedRunner>()
+                .RunAsync<CaptureService, int>(s => s.RecoverInterruptedAsync());
+            if (recovered > 0) Log.Warning("{Count} captura(s) interrompida(s) recuperada(s)", recovered);
         }
         catch (Exception ex)
         {
@@ -102,6 +113,8 @@ public partial class App : Application
     {
         if (_host is not null)
         {
+            try { await _host.Services.GetRequiredService<NetworkCaptureViewModel>().StopIfRunningAsync(); }
+            catch (Exception ex) { Log.Error(ex, "Falha ao encerrar a captura em andamento"); }
             await _host.StopAsync(TimeSpan.FromSeconds(3));
             _host.Dispose();
         }

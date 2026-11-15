@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\REA.NetworkCapture\REA.NetworkCapture.csproj" />
+  </ItemGroup>
+</Project>

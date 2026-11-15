@@ -2,6 +2,8 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using REA.Core;
 using REA.Infrastructure;
+using REA.NetworkCapture;
+using REA.PacketAnalyzer;
 
 namespace REA.IntegrationTests;
 
@@ -36,6 +38,8 @@ public sealed class TestApp : IAsyncDisposable
         services.AddLogging();
         services.AddReaCore();
         services.AddReaInfrastructure(paths);
+        services.AddReaPacketAnalyzer();
+        services.AddReaNetworkCapture();
         var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
         await provider.GetRequiredService<DatabaseInitializer>().InitializeAsync();
         return new TestApp(provider, paths);

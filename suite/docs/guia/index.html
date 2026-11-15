@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guia REA Advanced Suite</title>
+  <meta name="description" content="Como usar o REA Advanced Suite e o motor REA, fase por fase.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu" type="button" aria-label="Abrir menu">Menu</button>
+  <div class="brand"><span class="logo">R</span> <span class="name">REA Advanced Suite</span> <small>· Guia do usuário · v0.2.0</small></div>
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Buscar no guia (atalho: /)" aria-label="Buscar no guia">
+  </div>
+  <button class="icon-btn" id="theme" type="button">Tema</button>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Sumário"><div id="toc"></div></nav>
+
+  <main>
+    <p id="no-results" class="no-results">Nada encontrado. Tente outra palavra, por exemplo “PCAPNG”, “backup” ou “fluxo”.</p>
+
+    <!-- ===================================================== INÍCIO -->
+    <section id="inicio" data-group="COMEÇAR" data-title="Início">
+      <div class="kicker">Guia do usuário</div>
+      <h1>REA Advanced Suite</h1>
+      <p class="lead">Plataforma Windows para investigar clientes e servidores de jogos em ambientes próprios ou autorizados:
+        organiza projetos e evidências, captura e analisa tráfego de rede e, nas próximas fases, analisa binários,
+        cria launchers, portais, wikis e sessões de gameplay.</p>
+      <div class="cards">
+        <div class="card"><h4>Fase 1 <span class="badge ok">pronto</span></h4><p>Projetos, ambientes, auditoria, backup, detecção de ferramentas.</p></div>
+        <div class="card"><h4>Fase 2 <span class="badge ok">pronto</span></h4><p>Captura real de rede, PCAPNG, Packet Inspector, TCP Stream Explorer, validação com TShark.</p></div>
+        <div class="card"><h4>Fases 3–9 <span class="badge planned">planejado</span></h4><p>Protocolos, binários, comparação, Launcher, Portal, Wiki/GM, Bot Lab AI, MIR4.</p></div>
+      </div>
+      <div class="callout">
+        <strong>Como este guia é mantido</strong>
+        Ao final de cada fase entra um capítulo novo explicando como usar o que foi implementado. Itens marcados
+        <span class="badge planned">planejado</span> ainda não existem no aplicativo: no menu, eles mostram só a fase prevista.
+      </div>
+    </section>
+
+    <section id="instalacao" data-group="COMEÇAR">
+      <h2>Instalação e primeira abertura</h2>
+      <h3 id="requisitos">Requisitos</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Item</th><th>Para quê</th><th>Como instalar</th></tr>
+        <tr><td>Windows 10/11 x64</td><td>—</td><td>—</td></tr>
+        <tr><td>.NET 10 ou 11 (ou pacote self-contained)</td><td>Abrir o aplicativo</td><td>dotnet.microsoft.com</td></tr>
+        <tr><td><strong>Npcap</strong> com loopback</td><td>Network Capture</td><td>npcap.com — marque <em>Support loopback traffic capture</em></td></tr>
+        <tr><td>Wireshark / TShark</td><td>Validar capturas</td><td><code>winget install WiresharkFoundation.Wireshark</code></td></tr>
+        <tr><td>Node.js 22.19+ / 24.11+</td><td>Motor REA (CLI)</td><td>nodejs.org</td></tr>
+        <tr><td>Ghidra 12 + JDK 21</td><td>Análise estática (REA e Fase 3)</td><td>Defina <code>GHIDRA_INSTALL_DIR</code></td></tr>
+      </table></div>
+      <h3 id="abrir">Abrir o aplicativo</h3>
+      <pre><code>cd "C:\Users\Gabriel\Desktop\REA ADVANCED SUITE\suite"
+.\scripts\check-environment.ps1   # mostra o que falta (não instala nada)
+.\scripts\build.ps1
+.\scripts\run.ps1</code></pre>
+      <p>Na primeira abertura o REA cria a pasta de dados, aplica as migrações do banco e faz um backup automático em segundo plano.
+        A primeira vez pode levar alguns segundos.</p>
+      <h3 id="dados">Onde ficam os dados</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Item</th><th>Caminho</th></tr>
+        <tr><td>Pasta raiz</td><td><code>%LOCALAPPDATA%\REA</code> (mude com a variável <code>REA_HOME</code>)</td></tr>
+        <tr><td>Banco</td><td><code>data\rea.db</code></td></tr>
+        <tr><td>Capturas</td><td><code>captures\&lt;projeto&gt;\&lt;captura&gt;.pcapng</code></td></tr>
+        <tr><td>Backups</td><td><code>backups\</code></td></tr>
+        <tr><td>Logs</td><td><code>logs\rea-AAAAMMDD.log</code> (30 dias)</td></tr>
+      </table></div>
+    </section>
+
+    <section id="interface" data-group="COMEÇAR">
+      <h2>Convenções da interface</h2>
+      <ul>
+        <li><strong>Menu lateral</strong> com todas as áreas. Etiqueta <code>F3</code>…<code>F9</code> = módulo planejado para aquela fase.</li>
+        <li><strong>Notificações</strong> no canto inferior direito, sempre com texto (<em>Concluído, Atenção, Erro</em>), nunca só cor.</li>
+        <li><strong>Confirmação</strong> apenas em ações destrutivas (arquivar, excluir, restaurar).</li>
+        <li><strong>Botões travam</strong> durante a operação; formulários só limpam depois de salvar.</li>
+        <li><strong>Listas</strong> paginadas no banco: 50, 100, 200 ou 500 itens por página.</li>
+        <li>Na busca de projetos e capturas, <kbd>Enter</kbd> executa a busca.</li>
+      </ul>
+    </section>
+
+    <!-- ===================================================== FASE 1 -->
+    <section id="fase1-projetos" data-group="FASE 1 — FUNDAÇÃO" data-status="pronto">
+      <h2>Projetos</h2>
+      <p>Um projeto é uma investigação isolada. Ambientes, capturas e descobertas de um projeto nunca se misturam com os de outro.</p>
+      <figure><img src="img/projetos.png" alt="Tela de projetos com lista e formulário de novo projeto"><figcaption>Projetos › Novo Projeto: lista paginada e formulário lateral.</figcaption></figure>
+      <h3 id="criar-projeto">Criar um projeto</h3>
+      <ol class="steps">
+        <li>Menu <strong>Projetos › Novo Projeto</strong>.</li>
+        <li>Preencha o <strong>Nome</strong> (3 a 120 caracteres, único — maiúsculas e espaços extras não contam), o <strong>Jogo</strong> e a <strong>Descrição</strong>.</li>
+        <li>Clique em <strong>Criar projeto</strong>. Se houver erro, a mensagem aparece em vermelho e o que você digitou é mantido.</li>
+      </ol>
+      <h3 id="acoes-projeto">Ações em Meus Projetos</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Ação</th><th>O que faz</th></tr>
+        <tr><td>Editar</td><td>Altera e registra o antes/depois na auditoria.</td></tr>
+        <tr><td>Ambientes</td><td>Abre os ambientes já filtrados para o projeto.</td></tr>
+        <tr><td>Duplicar</td><td>Copia o projeto e os ambientes. Capturas e evidências <strong>não</strong> são copiadas.</td></tr>
+        <tr><td>Arquivar / Reativar</td><td>Tira da lista de ativos sem apagar nada. Projeto arquivado não recebe ambientes nem capturas.</td></tr>
+        <tr><td>Excluir</td><td>Só para projeto <strong>sem ambientes e sem capturas</strong>. Com histórico, use Arquivar.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="fase1-ambientes" data-group="FASE 1 — FUNDAÇÃO" data-status="pronto">
+      <h2>Ambientes</h2>
+      <p>Perfil do que está sendo investigado dentro de um projeto: <em>Oficial</em>, <em>Servidor privado</em>,
+        <em>Laboratório local</em>, <em>Emulador</em> ou <em>Personalizado</em>, com versão e pasta do cliente.</p>
+      <ol class="steps">
+        <li>Menu <strong>Projetos › Ambientes</strong> e escolha o projeto no topo.</li>
+        <li><strong>+ Novo ambiente</strong>, preencha nome (único no projeto), tipo, versão, diretório e observações.</li>
+        <li><strong>Salvar</strong>. Ambientes com capturas não podem ser excluídos (são evidência).</li>
+      </ol>
+      <div class="callout warn"><strong>Não use credenciais como nome</strong>Evite e-mails, logins ou nomes de conta em nomes de projeto e ambiente.</div>
+    </section>
+
+    <section id="fase1-sistema" data-group="FASE 1 — FUNDAÇÃO" data-status="pronto">
+      <h2>Dashboard, auditoria e configurações</h2>
+      <h3 id="dashboard">Dashboard</h3>
+      <p>Mostra só dados reais: capturas, pacotes analisados, fluxos TCP, módulos implementados, projetos, ambientes,
+        ferramentas externas e atividades recentes. As contagens aparecem primeiro; a detecção de ferramentas leva alguns
+        segundos e mostra “Detectando…” enquanto roda.</p>
+      <h3 id="atividades">Evidence › Atividades</h3>
+      <p>Auditoria legível: quando, operador (usuário do Windows), ação, resumo e <em>Antes/Depois</em>. Não pode ser editada.</p>
+      <h3 id="tools">Settings › Tools</h3>
+      <p>Detecta Npcap, TShark, Ghidra, Java, REA CLI, WSL/Kali e WiX executando a própria ferramenta. Nada é instalado automaticamente.</p>
+      <h3 id="backup">Settings › Backup</h3>
+      <ul>
+        <li><strong>Criar backup agora</strong> — cópia consistente do banco, mesmo com o app aberto.</li>
+        <li><strong>Automático</strong> a cada 24 h (mantém 14).</li>
+        <li><strong>Restaurar</strong> — salva antes o estado atual (“Antes de restaurar”), valida o arquivo e só então substitui.</li>
+      </ul>
+      <div class="callout"><strong>Backup e capturas</strong>O backup cobre o banco (registros, hashes, auditoria). Os arquivos PCAPNG ficam em <code>captures\</code>: copie essa pasta junto para um backup completo.</div>
+    </section>
+
+    <!-- ===================================================== FASE 2 -->
+    <section id="fase2-visao" data-group="FASE 2 — REDE" data-status="pronto">
+      <h2>Visão geral da Fase 2</h2>
+      <p>Captura <strong>real</strong> de tráfego com Npcap, gravação em PCAPNG, inspeção pacote a pacote e reconstrução de
+        conversas TCP — tudo ligado ao projeto como evidência, com SHA-256.</p>
+      <div class="cards">
+        <div class="card"><h4>Network Capture</h4><p>Escolha interface e filtro, capture, pare. Salva PCAPNG e analisa sozinho.</p></div>
+        <div class="card"><h4>Evidence › Captures</h4><p>Lista, importação de PCAP/PCAPNG, detalhes, validação com TShark, exportação.</p></div>
+        <div class="card"><h4>Packet Inspector</h4><p>Pacotes paginados, filtros, camadas decodificadas, hex e ASCII.</p></div>
+        <div class="card"><h4>TCP Stream Explorer</h4><p>Conversas reconstruídas, lacunas, retransmissões e linha do tempo.</p></div>
+      </div>
+      <div class="callout ok"><strong>Validado com tráfego real</strong>Teste automático: captura em loopback → PCAPNG → fechar → reabrir → reconstruir o fluxo byte a byte → comparar com o TShark 4.6.9 (pacotes, conversas e conteúdo idênticos).</div>
+    </section>
+
+    <section id="fase2-captura" data-group="FASE 2 — REDE" data-status="pronto">
+      <h2>Capturar tráfego (Network Capture)</h2>
+      <figure><img src="img/network-capture.png" alt="Network Capture após uma captura em loopback com 11 pacotes"><figcaption>Research › Network Capture: formulário à esquerda, pacotes ao vivo à direita.</figcaption></figure>
+      <ol class="steps">
+        <li>Menu <strong>Research › Network Capture</strong>. Se aparecer um aviso amarelo, o Npcap não está instalado.</li>
+        <li>Escolha o <strong>Projeto</strong> (obrigatório) e, se quiser, o <strong>Ambiente</strong>.</li>
+        <li>Dê um <strong>nome</strong> à captura.</li>
+        <li>Escolha a <strong>interface</strong>. Para tráfego entre programas no mesmo PC (cliente e servidor locais), use
+          <em>Loopback · Adapter for loopback traffic capture</em>. Para tráfego que sai do PC, use a placa (Wi-Fi/Ethernet).</li>
+        <li>Opcional: um <strong>filtro BPF</strong> para gravar só o que interessa (exemplos abaixo). O filtro é validado antes de começar.</li>
+        <li>Opcional: <strong>limites</strong> de pacotes, tamanho (MB) ou tempo (s). A captura para sozinha ao atingir um deles.</li>
+        <li><strong>Iniciar captura</strong>. O status muda para <em>● Capturando</em> e os pacotes aparecem à direita (últimos 1000; o arquivo guarda todos).</li>
+        <li><strong>Parar</strong>. O REA grava o PCAPNG, calcula o SHA-256 e gera estatísticas. Depois use <strong>Abrir no Packet Inspector</strong> ou <strong>Ver fluxos TCP</strong>.</li>
+      </ol>
+      <h3 id="bpf">Exemplos de filtro BPF</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Filtro</th><th>Grava</th></tr>
+        <tr><td><code>tcp port 7000</code></td><td>Só TCP na porta 7000 (origem ou destino)</td></tr>
+        <tr><td><code>host 192.168.0.10</code></td><td>Tudo de/para esse IP</td></tr>
+        <tr><td><code>tcp portrange 7000-7100</code></td><td>Faixa de portas</td></tr>
+        <tr><td><code>udp and port 53</code></td><td>DNS</td></tr>
+        <tr><td><code>not port 443</code></td><td>Tudo menos HTTPS</td></tr>
+      </table></div>
+      <div class="callout"><strong>Pode trocar de tela</strong>A captura continua se você navegar para outra área. Ao fechar o app com captura ativa, ela é encerrada e registrada. Se o app for fechado à força, na próxima abertura a captura aparece como <em>Interrompida</em>, com tudo o que foi gravado até ali.</div>
+      <div class="callout warn"><strong>Captura passiva e autorizada</strong>Nada é enviado à rede. Capture somente tráfego seu ou de ambientes em que você tem autorização.</div>
+    </section>
+
+    <section id="fase2-capturas" data-group="FASE 2 — REDE" data-status="pronto">
+      <h2>Gerenciar capturas (Evidence › Captures)</h2>
+      <figure><img src="img/captures.png" alt="Lista de capturas com relatório de validação do TShark"><figcaption>Selecione uma captura e use a barra de ações. Abaixo, o relatório da validação com o TShark.</figcaption></figure>
+      <h3 id="importar">Importar um PCAP/PCAPNG</h3>
+      <ol class="steps">
+        <li>Escolha um <strong>Projeto</strong> no filtro (a importação precisa de um projeto) e, se quiser, o <strong>Ambiente</strong>.</li>
+        <li><strong>Importar PCAP/PCAPNG</strong> e selecione o arquivo (Wireshark, tcpdump, etc.).</li>
+        <li>O REA confere o formato, copia o arquivo para a pasta de capturas, compara o SHA-256 da cópia com o do original e analisa. <strong>O original nunca é alterado.</strong></li>
+      </ol>
+      <h3 id="acoes-captura">Ações da captura selecionada</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Ação</th><th>O que faz</th></tr>
+        <tr><td>Abrir no Packet Inspector</td><td>Também com duplo clique na linha.</td></tr>
+        <tr><td>Fluxos TCP</td><td>Abre o TCP Stream Explorer nesta captura.</td></tr>
+        <tr><td>Detalhes</td><td>Origem, interface, filtro, horários, SHA-256, protocolos, pacotes descartados, observações.</td></tr>
+        <tr><td>Validar com TShark</td><td>Compara contagem de pacotes, conversas TCP e o conteúdo dos 20 primeiros fluxos com uma ferramenta independente. Linhas <code>[OK]</code> ou <code>[DIFERENTE]</code>.</td></tr>
+        <tr><td>Reanalisar</td><td>Recalcula as estatísticas a partir do arquivo.</td></tr>
+        <tr><td>Exportar cópia</td><td>Salva uma cópia do PCAPNG/PCAP em outro lugar (para abrir no Wireshark, por exemplo).</td></tr>
+        <tr><td>Mostrar na pasta</td><td>Abre o Explorer com o arquivo selecionado.</td></tr>
+      </table></div>
+      <p>Capturas são evidência: não há botão de excluir. Para encerrar uma investigação, arquive o projeto.</p>
+    </section>
+
+    <section id="fase2-inspector" data-group="FASE 2 — REDE" data-status="pronto">
+      <h2>Inspecionar pacotes (Packet Inspector)</h2>
+      <figure><img src="img/packet-inspector.png" alt="Packet Inspector com lista de pacotes, camadas decodificadas e hex dump"><figcaption>Lista paginada no topo; camadas decodificadas e bytes (hex + ASCII) embaixo.</figcaption></figure>
+      <ol class="steps">
+        <li>Escolha a <strong>Captura</strong> no topo (as 500 mais recentes). À direita aparecem formato, início do SHA-256 e tamanho.</li>
+        <li>Filtre por <strong>Protocolo</strong>, <strong>Endereço</strong> (IP de origem ou destino), <strong>Porta</strong>, <strong>Texto</strong> (procura no resumo e nos bytes, sem diferenciar maiúsculas) e <strong>Só com dados</strong>. Clique em <strong>Aplicar filtro</strong> (ou <kbd>Enter</kbd> no campo Texto).</li>
+        <li>Clique num pacote para ver as camadas (Quadro, Loopback/Ethernet, IPv4/IPv6, TCP/UDP, Dados) e os bytes: aba <em>Pacote</em> (quadro inteiro) ou <em>Dados da aplicação</em> (só o payload).</li>
+        <li><strong>Exportar CSV</strong> grava todos os pacotes do filtro atual (não só a página).</li>
+      </ol>
+      <div class="callout"><strong>Arquivos grandes</strong>O arquivo nunca é carregado inteiro na memória: o REA guarda só a posição de cada pacote e lê do disco a página pedida. Filtros percorrem o arquivo em fluxo.</div>
+      <div class="callout warn"><strong>Conteúdo cifrado</strong>Se o jogo usa TLS ou criptografia própria, os dados aparecem como bytes sem sentido. Registre isso como inconclusivo — não como descoberta.</div>
+    </section>
+
+    <section id="fase2-tcp" data-group="FASE 2 — REDE" data-status="pronto">
+      <h2>Reconstruir conversas (TCP Stream Explorer)</h2>
+      <figure><img src="img/tcp-streams.png" alt="TCP Stream Explorer com um fluxo completo, hex dump e linha do tempo"><figcaption>Fluxos no topo; bytes da direção escolhida à esquerda; linha do tempo à direita.</figcaption></figure>
+      <ol class="steps">
+        <li>Escolha a captura. O resumo mostra quantos fluxos são completos, com lacunas ou parciais.</li>
+        <li>Selecione um fluxo e a <strong>Direção</strong> (Cliente → Servidor ou Servidor → Cliente).</li>
+        <li>Veja os bytes em <em>Hex + ASCII</em> ou <em>Somente texto</em>, e a <strong>linha do tempo</strong> (quadro, horário, sentido C → S / S → C, flags, tamanho, sequência relativa).</li>
+        <li><strong>Exportar bytes</strong> salva a direção escolhida num arquivo <code>.bin</code> para análise em outras ferramentas.</li>
+      </ol>
+      <h3 id="completude">O que significa cada estado</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Estado</th><th>Significado</th></tr>
+        <tr><td><strong>Completo</strong></td><td>Handshake (SYN) e encerramento (FIN ou RST) observados e nenhuma lacuna.</td></tr>
+        <tr><td><strong>Sem lacunas (início/fim não capturados)</strong></td><td>Os bytes observados são contínuos, mas a captura começou depois da conexão ou terminou antes do fim.</td></tr>
+        <tr><td><strong>Incompleto: N lacuna(s)</strong></td><td>Faltam segmentos. Também conta quando o outro lado confirmou (ACK) bytes que não estão na captura. As lacunas aparecem em amarelo e são preenchidas com <code>00</code> na visualização e na exportação.</td></tr>
+      </table></div>
+      <p>O REA reordena segmentos fora de ordem e descarta retransmissões (contadas na coluna <em>Retransm.</em>). Um fluxo com lacuna <strong>nunca</strong> é marcado como completo.</p>
+    </section>
+
+    <section id="fase2-fluxo" data-group="FASE 2 — REDE" data-status="pronto">
+      <h2>Roteiro: estudar a comunicação do seu laboratório</h2>
+      <ol class="steps">
+        <li>Crie o projeto e o ambiente (ex.: <em>Laboratório local</em>, versão do cliente).</li>
+        <li>Descubra a porta do servidor do laboratório (no próprio servidor ou com <code>netstat -ano</code>).</li>
+        <li>Em Network Capture, use a interface certa (loopback se cliente e servidor estão no mesmo PC) e o filtro <code>tcp port &lt;porta&gt;</code>.</li>
+        <li>Inicie a captura, faça <strong>uma ação por vez</strong> no cliente (login, entrar no mundo, mover…) e anote os horários.</li>
+        <li>Pare, abra o TCP Stream Explorer e compare os bytes de cada momento com as ações anotadas.</li>
+        <li>Rode <strong>Validar com TShark</strong> para ter uma segunda ferramenta confirmando a leitura.</li>
+        <li>Registre hipóteses como hipóteses. A correlação automática entre ações e pacotes chega com o <strong>Bot Lab › Manual Gameplay</strong> e a Session Timeline (Fase 4).</li>
+      </ol>
+    </section>
+
+    <!-- ===================================================== MOTOR REA -->
+    <section id="motor" data-group="MOTOR REA (CLI)" data-status="pronto">
+      <h2>Motor REA pelo terminal</h2>
+      <p>O REA (<code>rea-agents</code> 6.4.0, na raiz do repositório) analisa binários, PE, .NET, apps JavaScript/Electron e mais,
+        sempre localmente e com evidência (SHA-256, provedor, cobertura, limitações).</p>
+      <pre><code>cd "C:\Users\Gabriel\Desktop\REA ADVANCED SUITE"
+node scripts/rea.mjs doctor
+node scripts/rea.mjs inspect-artifact "D:\Lab\Cliente\Game.exe" --format md
+node scripts/rea.mjs inspect-pe-resources "D:\Lab\Cliente\Game.exe"
+node scripts/rea.mjs analyze "D:\Lab\Cliente\Game.exe"     # usa o Ghidra
+node scripts/rea.mjs search "Login"</code></pre>
+      <div class="table-wrap"><table>
+        <tr><th>Objetivo</th><th>Comando</th></tr>
+        <tr><td>Identificar arquivo</td><td><code>inspect-artifact</code></td></tr>
+        <tr><td>Seções, imports</td><td><code>inspect-binary-layout</code></td></tr>
+        <tr><td>Recursos de PE</td><td><code>inspect-pe-resources</code></td></tr>
+        <tr><td>Assinatura</td><td><code>inspect-signature</code></td></tr>
+        <tr><td>Assembly .NET</td><td><code>inspect-managed-artifact</code>, <code>inspect-managed-members</code></td></tr>
+        <tr><td>Função como código</td><td><code>decompile</code>, <code>function</code></td></tr>
+        <tr><td>Strings/funções</td><td><code>search</code>, <code>xrefs</code>, <code>trace</code></td></tr>
+        <tr><td>Extrair pacote</td><td><code>extract-artifact</code></td></tr>
+      </table></div>
+      <div class="callout warn"><strong>PCAP no motor REA</strong><code>rea inspect-packet-capture</code> só funciona em Linux. No Windows use o Packet Inspector da suíte (Fase 2).</div>
+    </section>
+
+    <!-- ===================================================== ROADMAP -->
+    <section id="roadmap" data-group="PRÓXIMAS FASES" data-status="planejado">
+      <h2>O que vem a seguir</h2>
+      <div class="table-wrap"><table>
+        <tr><th>Fase</th><th>Conteúdo</th></tr>
+        <tr><td>3</td><td>Protocol Explorer, Protobuf, Binary/File Analysis, Ghidra Integration, HTTP Analyzer, Kali Tools</td></tr>
+        <tr><td>4</td><td>Perfis de ambiente, comparações, Session Timeline, correlação de evidências, <strong>Bot Lab: Manual Gameplay, Session Recorder, History, Evidence Explorer</strong></td></tr>
+        <tr><td>5</td><td>Launcher Studio</td></tr>
+        <tr><td>6</td><td>Portal Studio</td></tr>
+        <tr><td>7</td><td>Wiki, GM &amp; Server Admin, <strong>Bot Lab: AI Gameplay, Live Observer, Visual Recognition, Scenario Builder</strong></td></tr>
+        <tr><td>8</td><td>Template de pesquisa MIR4</td></tr>
+        <tr><td>9</td><td>Finalização, instalador MSI, temas</td></tr>
+      </table></div>
+    </section>
+
+    <section id="botlab" data-group="PRÓXIMAS FASES" data-status="planejado">
+      <h2>Bot Lab AI</h2>
+      <p><strong>Manual Gameplay</strong> (prioritário): você joga normalmente e o REA registra, em segundo plano, capturas de tela,
+        eventos marcados por você (atalhos configuráveis) e o tráfego de rede, tudo numa linha do tempo sincronizada.
+        Não exige IA nem injeta nada no processo do jogo.</p>
+      <p><strong>AI Gameplay</strong>: agente visual que observa e executa cenários de teste <strong>somente em ambientes de laboratório
+        próprios</strong> e com aprovação de cada ação. Em ambientes do tipo <em>Oficial</em>, o agente apenas observa.
+        Sem automação de farm/combate em servidores de terceiros e sem contornar anti-cheat.</p>
+    </section>
+
+    <!-- ===================================================== AJUDA -->
+    <section id="problemas" data-group="AJUDA">
+      <h2>Solução de problemas</h2>
+      <div class="table-wrap"><table>
+        <tr><th>Sintoma</th><th>O que fazer</th></tr>
+        <tr><td>Aviso “Npcap não está instalado”</td><td>Instale de npcap.com marcando <em>loopback</em>; reabra o app.</td></tr>
+        <tr><td>Interface Loopback não aparece</td><td>Reinstale o Npcap com <em>Support loopback traffic capture</em>.</td></tr>
+        <tr><td>“Filtro BPF inválido”</td><td>Revise a sintaxe (ex.: <code>tcp port 7000</code>); a mensagem mostra o erro do Npcap.</td></tr>
+        <tr><td>Captura com 0 pacotes</td><td>Interface errada (loopback × placa de rede) ou filtro restritivo demais.</td></tr>
+        <tr><td>“pacote(s) descartado(s) pelo driver”</td><td>Tráfego alto: use filtro BPF para reduzir o volume.</td></tr>
+        <tr><td>“Arquivo incompleto” no Inspector</td><td>O arquivo foi cortado (queda, cópia incompleta). Os pacotes anteriores ao corte são exibidos normalmente.</td></tr>
+        <tr><td>Fluxo “Incompleto”</td><td>A captura perdeu segmentos ou começou no meio. Capture de novo com filtro e limites adequados.</td></tr>
+        <tr><td>Validar com TShark falha</td><td>Instale o Wireshark ou defina <code>REA_TSHARK</code> com o caminho do <code>tshark.exe</code>.</td></tr>
+        <tr><td>“Este projeto tem capturas registradas”</td><td>Regra de preservação de evidência: arquive o projeto.</td></tr>
+      </table></div>
+      <p>Logs detalhados: <code>%LOCALAPPDATA%\REA\logs</code>.</p>
+    </section>
+
+    <section id="responsavel" data-group="AJUDA">
+      <h2>Uso responsável</h2>
+      <p>O REA é ferramenta de pesquisa para ambientes próprios, laboratórios e sistemas em que você tem autorização.
+        Não implementa — e não deve ser usado para — roubo de credenciais, coleta de tokens de terceiros, força bruta,
+        exploração de servidores de terceiros, evasão de anti-cheat, falsificação de identidade de cliente, bypass de
+        autenticação, spoofing de identificadores de hardware ou adulteração de assinaturas de launchers.</p>
+      <footer>REA Advanced Suite · guia v0.2.0 (Fases 1 e 2) · atualizado em 15/11/2026 · versão em Markdown: <code>docs/GENERAL/USER_GUIDE.md</code></footer>
+    </section>
+  </main>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Imagem ampliada"><img alt=""></div>
+<script src="app.js"></script>
+</body>
+</html>
