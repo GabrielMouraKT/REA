@@ -103,7 +103,7 @@ public static class TsharkCrossCheck
         return (c2s.ToArray(), s2c.ToArray());
     }
 
-    private static async Task<string> Run(string exe, IEnumerable<string> args, CancellationToken ct)
+    internal static async Task<string> Run(string exe, IEnumerable<string> args, CancellationToken ct)
     {
         var psi = new ProcessStartInfo(exe)
         {
