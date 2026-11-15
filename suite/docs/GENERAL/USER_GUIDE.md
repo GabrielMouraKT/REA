@@ -449,3 +449,19 @@ palavras simples; ligada, mostra tabelas, hexadecimal e detalhes. A escolha fica
 Regras: arquivos são evidência (sem exclusão); projeto/ambiente com arquivos não pode ser excluído; análise do Ghidra
 interrompida por fechamento do app volta como **Falhou** com o motivo. Os arquivos ficam em `%LOCALAPPDATA%\REA\files`
 (o backup do banco não inclui essa pasta: copie-a junto).
+
+---
+
+## 12. Git Control Center (resumo)
+
+Guia completo: [docs/GIT_CONTROL_CENTER/USER_GUIDE.md](../GIT_CONTROL_CENTER/USER_GUIDE.md).
+
+| Tela           | Para quê                                                                   |
+| -------------- | -------------------------------------------------------------------------- |
+| Dashboard      | Todos os repositórios dos projetos com o estado de cada um                 |
+| Accounts       | Conta do GitHub (login pelo GitHub CLI) e seus repositórios no GitHub      |
+| Repositories   | Vincular, iniciar, clonar, publicar no GitHub, desvincular                 |
+| Commit Manager | Alterações, diferenças, seleção, commit com verificação de segredos, stash |
+| Branch Manager | Criar, ativar, renomear, merge, excluir com proteção                       |
+| Remote Sync    | Buscar, receber (só avanço rápido) e enviar (nunca forçado)                |
+| Git History    | Commits e o que cada um mudou                                              |

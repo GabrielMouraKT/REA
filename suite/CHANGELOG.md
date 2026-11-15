@@ -1,5 +1,13 @@
 # Changelog — REA Advanced Suite
 
+## Não lançado
+
+### Adicionado
+- Git Control Center (modo manual): Dashboard, Accounts (GitHub CLI), Repositories (vincular, iniciar, clonar, criar no
+  GitHub), Commit Manager (diff, seleção, verificação de segredos, stash), Branch Manager (proteção contra perda de
+  trabalho, merge com cancelamento), Remote Sync (pull só avanço rápido, push nunca forçado), Git History.
+- Migração aditiva AddGitRepositories.
+
 ## 0.3.0 — 2026-11-15 (Fase 3)
 
 ### Adicionado

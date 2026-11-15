@@ -329,6 +329,21 @@
       </ul>
     </section>
 
+    <section id="git-visao" data-group="GIT CONTROL CENTER" data-status="pronto">
+      <h2>Git e GitHub sem terminal</h2>
+      <p>Repositórios ligados aos projetos, commits, branches e sincronização com o GitHub. A conta do GitHub é a do
+        GitHub CLI (<code>gh</code>): o REA não pede senha nem guarda token.</p>
+      <ol class="steps">
+        <li><strong>Accounts</strong>: confira a conta conectada (ou <em>Conectar / trocar conta</em>).</li>
+        <li><strong>Repositories</strong>: escolha o projeto e vincule uma pasta, inicie um repositório novo ou clone um do GitHub.</li>
+        <li><strong>Commit Manager</strong>: marque arquivos, <em>Selecionar para o commit</em>, escreva a mensagem e <em>Fazer commit</em>. O REA procura senhas e chaves antes.</li>
+        <li><strong>Remote Sync</strong>: <em>Enviar</em> mostra o que vai e pede confirmação; nunca força. <em>Receber</em> só avança se não houver divergência.</li>
+        <li><strong>Branch Manager</strong> e <strong>Git History</strong>: linhas de trabalho e histórico.</li>
+      </ol>
+      <div class="callout"><strong>Proteções</strong>Excluir um branch com trabalho que só existe nele pede uma segunda confirmação; merge com conflito pode ser cancelado; desvincular não apaga arquivos.</div>
+      <p>Detalhes: <code>docs/GIT_CONTROL_CENTER/</code>.</p>
+    </section>
+
     <section id="motor" data-group="MOTOR REA (CLI)" data-status="pronto">
       <h2>Motor REA pelo terminal</h2>
       <p>O REA (<code>rea-agents</code> 6.4.0, na raiz do repositório) analisa binários, PE, .NET, apps JavaScript/Electron e mais,

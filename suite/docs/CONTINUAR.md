@@ -11,7 +11,7 @@ Ler antes de implementar: `docs/REQUISITOS/01_PROMPT_MESTRE_RESUMO.md` (prompt m
 ## Passos ao retomar
 
 1. `cd "C:\Users\Gabriel\Desktop\REA ADVANCED SUITE"` → `git status`, `git log --oneline -3`.
-2. `cd suite; .\scripts\build.ps1; .\scripts\test.ps1` → esperado **122/122** (Unit 20, Network 28, Integration 27, Binary 16, Protocol 22, Tool 9; os testes reais do Ghidra levam ~2 min).
+2. `cd suite; .\scripts\build.ps1; .\scripts\test.ps1` → esperado **149 testes, 1 ignorado** (o teste da conta real do GitHub só roda com `REA_TEST_GITHUB=1`)
 3. **Fase 3 concluída** (`docs/RELATORIO_FASE3.md`). Próximo: Git Control Center — ver decisões em `IMPLEMENTATION_PLAN.md`. Ao final da fase: guia HTML (`docs/guia/index.html`), `docs/GENERAL/USER_GUIDE.md`, `docs/RELATORIO_FASE3.md`, arquivos de continuidade, commit local (sem push).
 
 ## Estado da Fase 3
@@ -41,7 +41,11 @@ nos dois modos (abas Seções/Strings/Hex) → Ghidra pela tela (94 funções, 8
 
 ## Módulos novos (requisitos 04 e 05)
 
-Claude Control Center e Git Control Center: requisitos salvos; encaixe e decisões pendentes em `IMPLEMENTATION_PLAN.md`.
+Git Control Center (modo manual) **pronto**: `GitService` (REA.Core), `GitCli`/`GitHubCli` (REA.ToolIntegration), migração
+`AddGitRepositories`, telas em `Views/GitPages.xaml`, docs em `docs/GIT_CONTROL_CENTER/`. Testes: `GitServiceTests` (Git
+real + remoto file://), `GitParsingTests`; leitura real do GitHub com `REA_TEST_GITHUB=1`.
+**Próximo:** completar operações (rebase, tag, reset, revert, cherry-pick, blame, clean, bisect, submodule, conflito visual,
+Git Settings) e GitHub (Pull Requests, Issues, Releases, Actions) — depois o Claude Control Center (decisões no plano).
 
 ## Pendências fora da Fase 3
 

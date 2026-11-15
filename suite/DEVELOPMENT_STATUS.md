@@ -6,13 +6,13 @@
 
 > **Retomada:** leia primeiro `docs/CONTINUAR.md`.
 
-Fases 0 a 3 concluídas e testadas (122/122; telas da Fase 3 verificadas na interface real). **Próximo:** Git Control
-Center (modo manual, login do `gh`), depois Claude Control Center (Claude Code instalado) — decisões em `IMPLEMENTATION_PLAN.md`.
+Fases 0 a 3 concluídas; Git Control Center (modo manual) pronto. **Próximo:** completar o Git (operações avançadas,
+Pull Requests, Issues, Releases) e depois o Claude Control Center (Claude Code instalado) — ver `IMPLEMENTATION_PLAN.md`.
 
 ## Para retomar
 
 1. `cd suite; .\scripts\check-environment.ps1`
-2. `.\scripts\build.ps1; .\scripts\test.ps1` → esperado: **122/122** (testes de captura real exigem Npcap com loopback; sem ele são pulados com motivo).
+2. `.\scripts\build.ps1; .\scripts\test.ps1` → esperado **149 testes, 1 ignorado** (o teste da conta real do GitHub só roda com `REA_TEST_GITHUB=1`)
 3. Ler `KNOWN_ISSUES.md`, `docs/RELATORIO_FASE2.md` e `docs/BOT_LAB/README.md`.
 4. Ao terminar cada fase: atualizar `docs/guia/index.html`, `docs/GENERAL/USER_GUIDE.md` e escrever `docs/RELATORIO_FASE<N>.md`.
 
