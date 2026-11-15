@@ -118,7 +118,7 @@ public static class FileIdentifier
         return EntropyFromCounts(counts, data.Length);
     }
 
-    private static double EntropyFromCounts(ReadOnlySpan<long> counts, long total)
+    internal static double EntropyFromCounts(ReadOnlySpan<long> counts, long total)
     {
         double e = 0;
         foreach (var c in counts)

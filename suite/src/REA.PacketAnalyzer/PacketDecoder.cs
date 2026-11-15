@@ -254,14 +254,18 @@ public static class PacketDecoder
 
 public static class HexDump
 {
-    /// <summary>Formato clássico: deslocamento, 16 bytes em hexadecimal, ASCII.</summary>
-    public static string Format(ReadOnlySpan<byte> data, int maxBytes = 64 * 1024)
+    /// <summary>
+    /// Formato clássico: deslocamento, 16 bytes em hexadecimal, ASCII. <paramref name="baseOffset"/> é o deslocamento
+    /// do primeiro byte no arquivo de origem, para exibir uma faixa lida do meio de um arquivo.
+    /// </summary>
+    public static string Format(ReadOnlySpan<byte> data, int maxBytes = 64 * 1024, long baseOffset = 0)
     {
         var len = Math.Min(data.Length, maxBytes);
-        var sb = new StringBuilder(len / 16 * 78 + 80);
+        var offsetFormat = baseOffset + len > 0xFFFFFF ? "X10" : "X6";
+        var sb = new StringBuilder(len / 16 * 82 + 80);
         for (var row = 0; row < len; row += 16)
         {
-            sb.Append(row.ToString("X6", CultureInfo.InvariantCulture)).Append("  ");
+            sb.Append((baseOffset + row).ToString(offsetFormat, CultureInfo.InvariantCulture)).Append("  ");
             for (var i = 0; i < 16; i++)
             {
                 if (row + i < len) sb.Append(data[row + i].ToString("X2", CultureInfo.InvariantCulture)).Append(' ');

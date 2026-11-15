@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\REA.BinaryAnalysis\REA.BinaryAnalysis.csproj" />
+  </ItemGroup>
+</Project>
