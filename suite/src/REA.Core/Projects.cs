@@ -25,6 +25,7 @@ public sealed class ProjectService(
     IEnvironmentRepository environments,
     ICaptureRepository captures,
     IAnalyzedFileRepository analyzedFiles,
+    IGitRepositoryRepository gitRepositories,
     IActivityLog activity,
     IUnitOfWork unitOfWork,
     IClock clock,
@@ -137,6 +138,8 @@ public sealed class ProjectService(
             return OperationResult.Fail("Este projeto tem capturas registradas. Arquive o projeto em vez de excluir.");
         if (await analyzedFiles.CountByProjectAsync(id, ct) > 0)
             return OperationResult.Fail("Este projeto tem arquivos analisados registrados. Arquive o projeto em vez de excluir.");
+        if (await gitRepositories.CountByProjectAsync(id, ct) > 0)
+            return OperationResult.Fail("Este projeto tem repositórios Git vinculados. Desvincule-os ou arquive o projeto.");
 
         projects.Remove(project);
         Audit("Excluir projeto", project.Id, null, $"Projeto \"{project.Name}\" excluído definitivamente.", Describe(project), null);

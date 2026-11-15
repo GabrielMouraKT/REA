@@ -20,6 +20,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAnalyzedFileRepository, AnalyzedFileRepository>();
         services.AddSingleton<IFileEvidenceStorage, FileEvidenceStorage>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
+        services.AddScoped<IGitRepositoryRepository, GitRepositoryRepository>();
         services.AddScoped<IDatabaseInfoProvider, DatabaseInfoProvider>();
         services.AddSingleton<IBackupService, SqliteBackupService>();
         services.AddSingleton<IToolDetector, ToolDetector>();

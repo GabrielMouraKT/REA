@@ -53,6 +53,8 @@ public static class ToolIntegrationServiceCollectionExtensions
     public static IServiceCollection AddReaToolIntegration(this IServiceCollection services)
     {
         services.AddSingleton<IGhidraAnalyzer, GhidraAnalyzerAdapter>();
+        services.AddSingleton<IGitClient, GitCli>();
+        services.AddSingleton<IGitHubClient, GitHubCli>();
         return services;
     }
 }

@@ -15,6 +15,7 @@ public static class CoreServiceCollectionExtensions
         services.AddScoped<FileEvidenceService>();
         services.AddSingleton<IntegrationSettings>();
         services.AddScoped<SettingsService>();
+        services.AddScoped<GitService>();
         return services;
     }
 }

@@ -13,6 +13,7 @@ public sealed class ReaDbContext(DbContextOptions<ReaDbContext> options) : DbCon
     public DbSet<AppSetting> Settings => Set<AppSetting>();
     public DbSet<Capture> Captures => Set<Capture>();
     public DbSet<AnalyzedFile> AnalyzedFiles => Set<AnalyzedFile>();
+    public DbSet<GitRepositoryLink> GitRepositories => Set<GitRepositoryLink>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
@@ -112,6 +113,20 @@ public sealed class ReaDbContext(DbContextOptions<ReaDbContext> options) : DbCon
             e.HasIndex(x => x.GhidraStatus);
             e.HasOne(x => x.Project).WithMany().HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Environment).WithMany().HasForeignKey(x => x.EnvironmentId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        b.Entity<GitRepositoryLink>(e =>
+        {
+            e.ToTable("git_repositories");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).HasMaxLength(120).IsRequired();
+            e.Property(x => x.LocalPath).HasMaxLength(1024).IsRequired();
+            e.Property(x => x.RemoteUrl).HasMaxLength(1024);
+            e.Property(x => x.DefaultBranch).HasMaxLength(200).IsRequired();
+            e.Property(x => x.Account).HasMaxLength(120);
+            e.Property(x => x.Notes).HasMaxLength(4000);
+            e.HasIndex(x => new { x.ProjectId, x.LocalPath }).IsUnique();
+            e.HasOne(x => x.Project).WithMany().HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Restrict);
         });
 
         b.Entity<AppSetting>(e =>

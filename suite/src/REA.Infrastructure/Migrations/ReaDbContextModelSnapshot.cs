@@ -292,6 +292,56 @@ namespace REA.Infrastructure.Migrations
                     b.ToTable("captures", (string)null);
                 });
 
+            modelBuilder.Entity("REA.Domain.GitRepositoryLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Account")
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DefaultBranch")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LocalPath")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RemoteUrl")
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId", "LocalPath")
+                        .IsUnique();
+
+                    b.ToTable("git_repositories", (string)null);
+                });
+
             modelBuilder.Entity("REA.Domain.ResearchEnvironment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -422,6 +472,17 @@ namespace REA.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Environment");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("REA.Domain.GitRepositoryLink", b =>
+                {
+                    b.HasOne("REA.Domain.ResearchProject", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Project");
                 });
