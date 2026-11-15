@@ -1,0 +1,226 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:REA.Desktop.ViewModels">
+
+    <!-- ================= PROJETOS ================= -->
+    <DataTemplate DataType="{x:Type vm:ProjectsViewModel}">
+        <DockPanel>
+            <!-- Barra de filtros -->
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                <Button DockPanel.Dock="Right" Content="+ Novo projeto" Command="{Binding OpenNewCommand}"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Buscar" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox Width="280" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Buscar por nome do projeto ou do jogo (Enter)">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding ApplySearchCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <Button Content="Buscar" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding ApplySearchCommand}"/>
+                    <TextBlock Text="Situação" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="20,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding StatusFilter}" DisplayMemberPath="Label" Width="130"/>
+                </StackPanel>
+            </DockPanel>
+
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}"
+                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+
+            <!-- Paginação -->
+            <DockPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Text="Itens por página" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding PageSizes}" SelectedItem="{Binding PageSize}" Width="80"/>
+                    <Button Content="Anterior" Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Command="{Binding PreviousPageCommand}"/>
+                    <Button Content="Próxima" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding NextPageCommand}"/>
+                </StackPanel>
+                <TextBlock Text="{Binding PageText}" Style="{StaticResource MutedText}" VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <Grid>
+                        <DataGrid ItemsSource="{Binding Items}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Projeto" Binding="{Binding Name}" Width="2*" MinWidth="170"/>
+                                <DataGridTextColumn Header="Jogo" Binding="{Binding Game}" Width="*" MinWidth="100"/>
+                                <DataGridTextColumn Header="Situação" Binding="{Binding StatusText}" Width="90" MinWidth="90"/>
+                                <DataGridTextColumn Header="Ambientes" Binding="{Binding EnvironmentCount}" Width="85" MinWidth="85"/>
+                                <DataGridTextColumn Header="Atualizado" Binding="{Binding Updated}" Width="125" MinWidth="125"/>
+                                <DataGridTemplateColumn Header="Ações" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="Editar" Style="{StaticResource LinkButton}"
+                                                        Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"/>
+                                                <Button Content="Ambientes" Style="{StaticResource LinkButton}"
+                                                        Command="{Binding DataContext.OpenEnvironmentsCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"/>
+                                                <Button Content="Duplicar" Style="{StaticResource LinkButton}"
+                                                        Command="{Binding DataContext.DuplicateCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource LinkButton}"
+                                                        Command="{Binding DataContext.ToggleArchiveCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}">
+                                                    <Button.Content>
+                                                        <TextBlock>
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Text" Value="Arquivar"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsArchived}" Value="True">
+                                                                            <Setter Property="Text" Value="Reativar"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Button.Content>
+                                                </Button>
+                                                <Button Content="Excluir" Style="{StaticResource LinkButton}" Foreground="#F87171"
+                                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Estado vazio -->
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420"
+                                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Nenhum projeto encontrado" Style="{StaticResource H2}" HorizontalAlignment="Center"/>
+                            <TextBlock Style="{StaticResource MutedText}" TextAlignment="Center"
+                                       Text="Crie um projeto para organizar ambientes, capturas e descobertas de uma investigação. Se você filtrou, troque a situação ou limpe a busca."/>
+                            <Button Content="+ Criar primeiro projeto" Margin="0,14,0,0" HorizontalAlignment="Center" Command="{Binding OpenNewCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Formulário -->
+                <Border Grid.Column="1" Style="{StaticResource Card}" Width="360" Margin="16,0,0,0" VerticalAlignment="Top"
+                        Visibility="{Binding IsFormOpen, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding FormTitle}" Style="{StaticResource H2}"/>
+                        <TextBlock Text="Nome do projeto *" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormName, UpdateSourceTrigger=PropertyChanged}" MaxLength="120"/>
+                        <TextBlock Text="Jogo" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormGame, UpdateSourceTrigger=PropertyChanged}" MaxLength="120"/>
+                        <TextBlock Text="Descrição" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormDescription, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
+                                 TextWrapping="Wrap" Height="110" VerticalScrollBarVisibility="Auto" MaxLength="4000"/>
+                        <TextBlock Text="{Binding FormError}" Style="{StaticResource ErrorText}"
+                                   Visibility="{Binding FormError, Converter={StaticResource NullToCollapsed}}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Content="{Binding SaveLabel}" Command="{Binding SaveCommand}"/>
+                            <Button Content="Cancelar" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding CloseFormCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= AMBIENTES ================= -->
+    <DataTemplate DataType="{x:Type vm:EnvironmentsViewModel}">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                <Button DockPanel.Dock="Right" Content="+ Novo ambiente" Command="{Binding OpenNewCommand}"
+                        IsEnabled="{Binding CanAdd}" ToolTip="Projetos arquivados não recebem novos ambientes."/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Projeto" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding Projects}" SelectedItem="{Binding SelectedProject}" DisplayMemberPath="Name" Width="320"/>
+                </StackPanel>
+            </DockPanel>
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}"
+                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <Grid>
+                        <DataGrid ItemsSource="{Binding Items}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Ambiente" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="Tipo" Binding="{Binding KindText}" Width="140"/>
+                                <DataGridTextColumn Header="Versão do cliente" Binding="{Binding ClientVersion}" Width="140"/>
+                                <DataGridTextColumn Header="Diretório" Binding="{Binding ClientDirectory}" Width="2*"/>
+                                <DataGridTextColumn Header="Atualizado" Binding="{Binding Updated}" Width="130"/>
+                                <DataGridTemplateColumn Header="Ações" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="Editar" Style="{StaticResource LinkButton}"
+                                                        Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"/>
+                                                <Button Content="Excluir" Style="{StaticResource LinkButton}" Foreground="#F87171"
+                                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="440"
+                                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Nenhum ambiente neste projeto" Style="{StaticResource H2}" HorizontalAlignment="Center"/>
+                            <TextBlock Style="{StaticResource MutedText}" TextAlignment="Center"
+                                       Text="Cadastre cada ambiente investigado (cliente oficial, laboratório local, emulador…) para comparar versões e evidências."/>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="440"
+                                    Visibility="{Binding HasProjects, Converter={StaticResource InverseBoolToVis}}">
+                            <TextBlock Text="Crie um projeto primeiro" Style="{StaticResource H2}" HorizontalAlignment="Center"/>
+                            <TextBlock Style="{StaticResource MutedText}" TextAlignment="Center"
+                                       Text="Ambientes pertencem a um projeto. Use Projetos › Novo Projeto."/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource Card}" Width="380" Margin="16,0,0,0" VerticalAlignment="Top"
+                        Visibility="{Binding IsFormOpen, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding FormTitle}" Style="{StaticResource H2}"/>
+                        <TextBlock Text="Nome *" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormName, UpdateSourceTrigger=PropertyChanged}" MaxLength="120"/>
+                        <TextBlock Text="Tipo" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox ItemsSource="{Binding Kinds}" SelectedItem="{Binding FormKind}" DisplayMemberPath="Label"/>
+                        <TextBlock Text="Versão do cliente" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormVersion, UpdateSourceTrigger=PropertyChanged}" MaxLength="80"/>
+                        <TextBlock Text="Diretório do cliente" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormDirectory, UpdateSourceTrigger=PropertyChanged}" MaxLength="1024"/>
+                        <TextBlock Text="Descrição" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormDescription, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="70"/>
+                        <TextBlock Text="Observações" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding FormNotes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="70"/>
+                        <TextBlock Text="{Binding FormError}" Style="{StaticResource ErrorText}"
+                                   Visibility="{Binding FormError, Converter={StaticResource NullToCollapsed}}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Content="Salvar" Command="{Binding SaveCommand}"/>
+                            <Button Content="Cancelar" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding CloseFormCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= MÓDULO PLANEJADO ================= -->
+    <DataTemplate DataType="{x:Type vm:ModuleStatusViewModel}">
+        <Border Style="{StaticResource Card}" MaxWidth="640" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <StackPanel>
+                <Border CornerRadius="4" Padding="8,3" Background="{StaticResource Surface2}" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding PhaseText}" FontSize="12" Foreground="{StaticResource Warning}"/>
+                </Border>
+                <TextBlock Text="{Binding Title}" Style="{StaticResource H2}" Margin="0,14,0,6"/>
+                <TextBlock Text="{Binding Item.Description}" Style="{StaticResource MutedText}"/>
+                <TextBlock Text="Dependências" Style="{StaticResource FieldLabel}" Margin="0,16,0,4"/>
+                <TextBlock Text="{Binding Dependencies}" TextWrapping="Wrap"/>
+                <TextBlock Style="{StaticResource MutedText}" Margin="0,16,0,0" FontSize="12"
+                           Text="Este módulo ainda não foi implementado. Ele não exibe dados de exemplo para não ser confundido com uma funcionalidade pronta. Acompanhe o andamento em suite/DEVELOPMENT_STATUS.md."/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>
