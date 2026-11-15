@@ -173,6 +173,30 @@ public sealed partial class GitService(
         return OperationResult<string>.Ok(output.Length == 0 ? "(sem diferença de conteúdo; só permissões ou fim de linha)" : output);
     }
 
+    /// <summary>Detalhes de um commit (autor, mensagem, arquivos e diferenças), limitado em tamanho.</summary>
+    public async Task<OperationResult<string>> ShowAsync(Guid id, string hash, CancellationToken ct = default)
+    {
+        var link = await repos.GetAsync(id, ct);
+        if (link is null) return OperationResult<string>.Fail("Repositório não encontrado.");
+        if (hash.Length is < 4 or > 64 || !hash.All(Uri.IsHexDigit)) return OperationResult<string>.Fail("Commit inválido.");
+        var r = await git.RunAsync(link.LocalPath, ["show", "--stat", "--patch", "--no-ext-diff", "--format=fuller", hash], ct);
+        if (!r.Success) return OperationResult<string>.Fail(r.Message);
+        return OperationResult<string>.Ok(r.Output.Length > MaxDiffChars ? r.Output[..MaxDiffChars] + "\n… exibição cortada." : r.Output);
+    }
+
+    /// <summary>Commits locais ainda não enviados e commits do remoto ainda não recebidos (desde o último fetch).</summary>
+    public async Task<OperationResult<(IReadOnlyList<GitCommitInfo> ToSend, IReadOnlyList<GitCommitInfo> ToReceive)>> PendingAsync(Guid id, CancellationToken ct = default)
+    {
+        var link = await repos.GetAsync(id, ct);
+        if (link is null) return OperationResult<(IReadOnlyList<GitCommitInfo>, IReadOnlyList<GitCommitInfo>)>.Fail("Repositório não encontrado.");
+        var st = await git.StatusAsync(link.LocalPath, ct);
+        if (st.Upstream is null || st.HeadCommit is null)
+            return OperationResult<(IReadOnlyList<GitCommitInfo>, IReadOnlyList<GitCommitInfo>)>.Ok(([], []));
+        var send = await git.LogAsync(link.LocalPath, 500, "@{u}..HEAD", ct: ct);
+        var receive = await git.LogAsync(link.LocalPath, 500, "HEAD..@{u}", ct: ct);
+        return OperationResult<(IReadOnlyList<GitCommitInfo>, IReadOnlyList<GitCommitInfo>)>.Ok((send, receive));
+    }
+
     // ------------------------------------------------------------------ commit
 
     public async Task<OperationResult> StageAsync(Guid id, IReadOnlyList<string> paths, CancellationToken ct = default) =>

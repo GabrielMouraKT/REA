@@ -59,6 +59,13 @@ public partial class App : Application
                 services.AddTransient<ProtobufViewModel>();
                 services.AddTransient<ProtocolExplorerViewModel>();
                 services.AddTransient<HttpViewModel>();
+                services.AddTransient<GitDashboardViewModel>();
+                services.AddTransient<GitAccountsViewModel>();
+                services.AddTransient<GitRepositoriesViewModel>();
+                services.AddTransient<CommitManagerViewModel>();
+                services.AddTransient<BranchManagerViewModel>();
+                services.AddTransient<RemoteSyncViewModel>();
+                services.AddTransient<GitHistoryViewModel>();
                 services.AddSingleton<NotificationService>();
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<ScopedRunner>();

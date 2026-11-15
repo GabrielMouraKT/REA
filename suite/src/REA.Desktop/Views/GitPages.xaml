@@ -1,0 +1,332 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:REA.Desktop.ViewModels">
+
+    <!-- Cabeçalho comum: repositório, estado em palavras e explicação para iniciantes (modo simples) -->
+    <DataTemplate x:Key="GitRepoHeader">
+        <StackPanel>
+            <DockPanel Margin="0,0,0,8">
+                <Button DockPanel.Dock="Right" Content="Atualizar" Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Command="{Binding RefreshCommand}"/>
+                <TextBlock Text="Repositório" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox ItemsSource="{Binding Repos}" SelectedItem="{Binding SelectedRepo}" DisplayMemberPath="Label" MaxWidth="620" HorizontalAlignment="Left"/>
+            </DockPanel>
+            <Border Style="{StaticResource WarningBanner}" Visibility="{Binding HasNoRepos, Converter={StaticResource BoolToVis}}">
+                <TextBlock Foreground="{StaticResource Warning}" TextWrapping="Wrap"
+                           Text="Nenhum repositório vinculado. Vá em Git Control Center › Repositories para vincular, criar ou clonar um."/>
+            </Border>
+            <Border Background="{StaticResource Surface2}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,10"
+                    Visibility="{Binding StateText, Converter={StaticResource NullToCollapsed}}">
+                <StackPanel>
+                    <TextBlock Text="{Binding StateText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Explanation}" Style="{StaticResource MutedText}" FontSize="12" Margin="0,4,0,0"
+                               Visibility="{Binding Mode.IsTechnical, Converter={StaticResource InverseBoolToVis}}"/>
+                </StackPanel>
+            </Border>
+            <ProgressBar Style="{StaticResource LoadingBar}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- ================= DASHBOARD ================= -->
+    <DataTemplate DataType="{x:Type vm:GitDashboardViewModel}">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Atualizar" Style="{StaticResource SecondaryButton}" Command="{Binding RefreshCommand}"/>
+                    <Button Content="Gerenciar repositórios" Margin="6,0,0,0" Command="{Binding OpenRepositoriesCommand}"/>
+                </StackPanel>
+                <TextBlock Text="{Binding ToolsText}" Style="{StaticResource MutedText}" VerticalAlignment="Center"/>
+            </DockPanel>
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <TextBlock Text="Repositório selecionado:" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Button Content="Alterações e commit" Style="{StaticResource SecondaryButton}" Command="{Binding OpenCommitCommand}" CommandParameter="{Binding Selected}"/>
+                <Button Content="Sincronizar" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding OpenSyncCommand}" CommandParameter="{Binding Selected}"/>
+            </WrapPanel>
+            <Border Style="{StaticResource Card}" Padding="0">
+                <Grid>
+                    <DataGrid ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected}" RowHeight="NaN">
+                        <DataGrid.InputBindings>
+                            <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenCommitCommand}" CommandParameter="{Binding Selected}"/>
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Repositório" Binding="{Binding Name}" Width="150"/>
+                            <DataGridTextColumn Header="Projeto" Binding="{Binding Project}" Width="150"/>
+                            <DataGridTextColumn Header="Branch" Binding="{Binding Branch}" Width="120"/>
+                            <DataGridTextColumn Header="Estado" Binding="{Binding State}" Width="2*">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Margin" Value="0,6"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Remoto" Binding="{Binding Remote}" Width="*"/>
+                            <DataGridTextColumn Header="Pasta" Binding="{Binding Path}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="480" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="Nenhum repositório ainda" Style="{StaticResource H2}" HorizontalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource MutedText}" TextAlignment="Center"
+                                   Text="Em Repositories você vincula uma pasta que já usa Git, cria um repositório novo ou clona um do GitHub, sempre ligado a um projeto."/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= ACCOUNTS ================= -->
+    <DataTemplate DataType="{x:Type vm:GitAccountsViewModel}">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Conta do GitHub" Style="{StaticResource H2}"/>
+                    <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+                    <ContentControl Content="{Binding Facts}" ContentTemplate="{StaticResource FactsList}" Focusable="False" Margin="0,10,0,0"/>
+                    <WrapPanel Margin="0,12,0,0">
+                        <Button Content="Atualizar" Style="{StaticResource SecondaryButton}" Command="{Binding RefreshCommand}"/>
+                        <Button Content="Conectar / trocar conta" Margin="6,0,0,0" Command="{Binding OpenTerminalLoginCommand}"
+                                ToolTip="Abre o PowerShell com o login oficial do GitHub CLI (navegador ou código de dispositivo)."/>
+                        <Button Content="Desconectar" Style="{StaticResource DangerButton}" Margin="6,0,0,0" Command="{Binding OpenTerminalLogoutCommand}"
+                                IsEnabled="{Binding Connected}"/>
+                    </WrapPanel>
+                    <TextBlock Style="{StaticResource MutedText}" FontSize="11" Margin="0,8,0,0"
+                               Text="O login e o logout são feitos pelo GitHub CLI oficial numa janela do PowerShell. Depois clique em Atualizar. Para revogar o acesso de vez: github.com › Settings › Applications."/>
+                </StackPanel>
+            </Border>
+            <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+            <Border Style="{StaticResource Card}" Padding="0">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Seus repositórios no GitHub (até 100)" Style="{StaticResource H2}" Margin="14,12,14,4"/>
+                    <DataGrid ItemsSource="{Binding Remote}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Repositório" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Visibilidade" Binding="{Binding Visibility}" Width="140"/>
+                            <DataGridTextColumn Header="Atualizado" Binding="{Binding Updated}" Width="130"/>
+                            <DataGridTextColumn Header="Descrição" Binding="{Binding Description}" Width="*"/>
+                            <DataGridTextColumn Header="Endereço" Binding="{Binding Url}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= REPOSITORIES ================= -->
+    <DataTemplate DataType="{x:Type vm:GitRepositoriesViewModel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="360"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel>
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                    <TextBlock Text="Projeto" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox ItemsSource="{Binding Projects}" SelectedItem="{Binding Project}" DisplayMemberPath="Label" Width="260" HorizontalAlignment="Left"/>
+                </DockPanel>
+                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10" IsEnabled="{Binding HasProject}">
+                    <Button Content="Vincular pasta existente" Command="{Binding LinkFolderCommand}"/>
+                    <Button Content="Iniciar repositório novo" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding InitFolderCommand}"/>
+                </WrapPanel>
+                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10" IsEnabled="{Binding HasSelection}">
+                    <TextBlock Text="Selecionado:" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Button Content="Alterações e commit" Style="{StaticResource SecondaryButton}" Command="{Binding OpenCommitCommand}"/>
+                    <Button Content="Abrir pasta" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding OpenFolderCommand}"/>
+                    <Button Content="Desvincular" Style="{StaticResource DangerButton}" Margin="6,0,0,0" Command="{Binding UnlinkCommand}"/>
+                </WrapPanel>
+                <ProgressBar DockPanel.Dock="Top" Style="{StaticResource LoadingBar}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="160"/>
+                            <DataGridTextColumn Header="Pasta" Binding="{Binding LocalPath}" Width="2*"/>
+                            <DataGridTextColumn Header="Remoto" Binding="{Binding RemoteUrl, TargetNullValue='sem remoto'}" Width="*"/>
+                            <DataGridTextColumn Header="Branch principal" Binding="{Binding DefaultBranch}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </DockPanel>
+            <ScrollViewer Grid.Column="2">
+                <StackPanel>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel IsEnabled="{Binding HasProject}">
+                            <TextBlock Text="Clonar um repositório" Style="{StaticResource H2}"/>
+                            <TextBlock Text="Endereço (https://… ou git@…)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding CloneUrl, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}"/>
+                            <Button Content="Escolher pasta e clonar" HorizontalAlignment="Left" Margin="0,10,0,0" Command="{Binding CloneCommand}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                        <StackPanel IsEnabled="{Binding HasSelection}">
+                            <TextBlock Text="Publicar no GitHub" Style="{StaticResource H2}"/>
+                            <TextBlock Style="{StaticResource MutedText}" FontSize="12" Text="Cria o repositório na sua conta do GitHub e o liga ao repositório selecionado. O envio dos commits é feito depois, em Remote Sync."/>
+                            <TextBlock Text="Nome no GitHub" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding GithubName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="Descrição (opcional)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding GithubDescription, UpdateSourceTrigger=PropertyChanged}"/>
+                            <CheckBox Content="Privado (só você e quem você convidar)" IsChecked="{Binding GithubPrivate}" Foreground="{StaticResource Text}" Margin="0,10,0,0"/>
+                            <Button Content="Criar no GitHub" HorizontalAlignment="Left" Margin="0,10,0,0" Command="{Binding CreateOnGitHubCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </DataTemplate>
+
+    <!-- ================= COMMIT MANAGER ================= -->
+    <DataTemplate DataType="{x:Type vm:CommitManagerViewModel}">
+        <DockPanel>
+            <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource GitRepoHeader}" Focusable="False"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="1.2*"/>
+                </Grid.ColumnDefinitions>
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding BranchText}" Style="{StaticResource MutedText}" Margin="0,0,0,6"/>
+                    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                        <Button Content="Marcar todos" Style="{StaticResource SecondaryButton}" Command="{Binding CheckAllCommand}"/>
+                        <Button Content="Selecionar para o commit" Margin="6,0,0,0" Command="{Binding StageCommand}"/>
+                        <Button Content="Tirar da seleção" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding UnstageCommand}"/>
+                    </WrapPanel>
+                    <Border DockPanel.Dock="Bottom" Style="{StaticResource Card}" Margin="0,10,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Mensagem do commit (o que mudou e por quê)" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}" Height="70" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                            <WrapPanel Margin="0,10,0,0">
+                                <Button Content="Fazer commit" Command="{Binding CommitCommand}" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"/>
+                                <Button Content="Guardar alterações (stash)" Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Command="{Binding StashCommand}"/>
+                                <Button Content="Recuperar guardadas" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding StashPopCommand}"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Padding="0">
+                        <DataGrid ItemsSource="{Binding Changes}" SelectedItem="{Binding SelectedChange}">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="" Width="36">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate><CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center"/></DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Arquivo" Binding="{Binding Path}" Width="*"/>
+                                <DataGridTextColumn Header="Mudança" Binding="{Binding Kind}" Width="150"/>
+                                <DataGridTextColumn Header="No commit?" Binding="{Binding Selection}" Width="85"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </DockPanel>
+                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="10">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="Diferenças do arquivo (linhas com + entram, com - saem)" Style="{StaticResource H2}"/>
+                        <TextBox Text="{Binding Diff, Mode=OneWay}" Style="{StaticResource MonoBox}"/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= BRANCH MANAGER ================= -->
+    <DataTemplate DataType="{x:Type vm:BranchManagerViewModel}">
+        <DockPanel>
+            <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource GitRepoHeader}" Focusable="False"/>
+            <Border DockPanel.Dock="Top" Style="{StaticResource WarningBanner}" Visibility="{Binding MergeInProgress, Converter={StaticResource BoolToVis}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Cancelar merge" Style="{StaticResource DangerButton}" Command="{Binding AbortMergeCommand}"/>
+                    <TextBlock Foreground="{StaticResource Warning}" TextWrapping="Wrap" VerticalAlignment="Center"
+                               Text="Há um merge em andamento com conflitos. Resolva os arquivos marcados como CONFLITO (em Commit Manager) e faça o commit, ou cancele o merge."/>
+                </DockPanel>
+            </Border>
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <TextBlock Text="Novo branch" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}" Width="220" ToolTip="Ex.: recurso/login, correcao/crash"/>
+                <Button Content="Criar e ativar" Margin="6,0,0,0" Command="{Binding CreateCommand}"/>
+                <TextBlock Text="Selecionado:" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="24,0,8,0"/>
+                <Button Content="Ativar" Style="{StaticResource SecondaryButton}" Command="{Binding SwitchCommand}"/>
+                <Button Content="Renomear" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding RenameCommand}"/>
+                <Button Content="Merge no ativo" Style="{StaticResource SecondaryButton}" Margin="6,0,0,0" Command="{Binding MergeCommand}"/>
+                <Button Content="Excluir" Style="{StaticResource DangerButton}" Margin="6,0,0,0" Command="{Binding DeleteCommand}"/>
+            </WrapPanel>
+            <Border Style="{StaticResource Card}" Padding="0">
+                <DataGrid ItemsSource="{Binding Branches}" SelectedItem="{Binding SelectedBranch}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Branch" Binding="{Binding Name}" Width="220"/>
+                        <DataGridTextColumn Header="" Binding="{Binding Current}" Width="60"/>
+                        <DataGridTextColumn Header="Onde" Binding="{Binding Where}" Width="70"/>
+                        <DataGridTextColumn Header="Acompanha" Binding="{Binding Tracking}" Width="260"/>
+                        <DataGridTextColumn Header="Último commit" Binding="{Binding Last}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= REMOTE SYNC ================= -->
+    <DataTemplate DataType="{x:Type vm:RemoteSyncViewModel}">
+        <DockPanel>
+            <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource GitRepoHeader}" Focusable="False"/>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding RemoteText}" Style="{StaticResource MutedText}" Margin="0,0,0,8"/>
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <Button Content="Buscar novidades (fetch)" Style="{StaticResource SecondaryButton}" Command="{Binding FetchCommand}"/>
+                <Button Content="Receber (pull)" Margin="6,0,0,0" Command="{Binding PullCommand}"/>
+                <Button Content="Enviar (push)" Margin="6,0,0,0" Command="{Binding PushCommand}"/>
+            </WrapPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="Para enviar (só no seu computador)" Style="{StaticResource H2}" Margin="14,12,14,4"/>
+                        <DataGrid ItemsSource="{Binding ToSend}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Commit" Binding="{Binding Hash}" Width="80"/>
+                                <DataGridTextColumn Header="Mensagem" Binding="{Binding Subject}" Width="*"/>
+                                <DataGridTextColumn Header="Autor" Binding="{Binding Author}" Width="120"/>
+                                <DataGridTextColumn Header="Data" Binding="{Binding Date}" Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="Para receber (no servidor, desde a última busca)" Style="{StaticResource H2}" Margin="14,12,14,4"/>
+                        <DataGrid ItemsSource="{Binding ToReceive}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Commit" Binding="{Binding Hash}" Width="80"/>
+                                <DataGridTextColumn Header="Mensagem" Binding="{Binding Subject}" Width="*"/>
+                                <DataGridTextColumn Header="Autor" Binding="{Binding Author}" Width="120"/>
+                                <DataGridTextColumn Header="Data" Binding="{Binding Date}" Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- ================= HISTORY ================= -->
+    <DataTemplate DataType="{x:Type vm:GitHistoryViewModel}">
+        <DockPanel>
+            <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{StaticResource GitRepoHeader}" Focusable="False"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <DataGrid ItemsSource="{Binding Commits}" SelectedItem="{Binding SelectedCommit}" EnableRowVirtualization="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Commit" Binding="{Binding Hash}" Width="80"/>
+                            <DataGridTextColumn Header="Mensagem" Binding="{Binding Subject}" Width="2*"/>
+                            <DataGridTextColumn Header="Autor" Binding="{Binding Author}" Width="140"/>
+                            <DataGridTextColumn Header="Data" Binding="{Binding Date}" Width="120"/>
+                            <DataGridTextColumn Header="Branches/tags" Binding="{Binding Refs}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+                <Border Grid.Row="2" Style="{StaticResource Card}" Padding="10">
+                    <TextBox Text="{Binding Details, Mode=OneWay}" Style="{StaticResource MonoBox}"/>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+</ResourceDictionary>

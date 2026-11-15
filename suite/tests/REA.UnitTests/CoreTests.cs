@@ -82,7 +82,7 @@ public class NavigationCatalogTests
         var titles = NavigationCatalog.Sections.Select(s => s.Title).ToList();
         Assert.Equal(
             ["DASHBOARD", "PROJETOS", "RESEARCH", "COMPARATIVE ANALYSIS", "LAUNCHER STUDIO", "PORTAL STUDIO",
-             "WIKI & KNOWLEDGE", "GM & SERVER ADMIN", "BOT LAB AI", "EVIDENCE", "SETTINGS"],
+             "WIKI & KNOWLEDGE", "GM & SERVER ADMIN", "BOT LAB AI", "GIT CONTROL CENTER", "EVIDENCE", "SETTINGS"],
             titles);
     }
 
@@ -101,6 +101,8 @@ public class NavigationCatalogTests
                 NavigationCatalog.ResearchHttp, NavigationCatalog.ResearchProtocol, NavigationCatalog.ResearchProtobuf,
                 NavigationCatalog.ResearchBinary, NavigationCatalog.ResearchFiles, NavigationCatalog.ResearchGhidra,
                 NavigationCatalog.ResearchKali, NavigationCatalog.EvidenceFiles, NavigationCatalog.SettingsIntegrations,
+                NavigationCatalog.GitDashboard, NavigationCatalog.GitAccounts, NavigationCatalog.GitRepositories, NavigationCatalog.GitCommit,
+                NavigationCatalog.GitBranches, NavigationCatalog.GitSync, NavigationCatalog.GitHistory,
             }.Order(),
             implemented);
     }

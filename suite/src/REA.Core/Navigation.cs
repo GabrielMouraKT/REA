@@ -31,6 +31,13 @@ public static class NavigationCatalog
     public const string ResearchKali = "research.kali";
     public const string EvidenceFiles = "evidence.files";
     public const string SettingsIntegrations = "settings.integrations";
+    public const string GitDashboard = "git.dashboard";
+    public const string GitAccounts = "git.accounts";
+    public const string GitRepositories = "git.repositories";
+    public const string GitCommit = "git.commit";
+    public const string GitBranches = "git.branches";
+    public const string GitSync = "git.sync";
+    public const string GitHistory = "git.history";
 
     public static IReadOnlyList<NavSection> Sections { get; } =
     [
@@ -118,6 +125,19 @@ public static class NavigationCatalog
             new("botlab.history", "Session History", 4, false, "Sessões por data, projeto, aplicação e modo; abrir timeline; comparar; exportar."),
             new("botlab.evidence", "Evidence Explorer", 4, false, "PCAPNG, screenshots, logs, relatórios, metadados, hashes e anotações por sessão."),
             new("botlab.agent", "Agent Configuration", 7, false, "Modelos, limites e permissões do agente; funciona sem Ollama no modo observação."),
+        ]),
+        new("GIT CONTROL CENTER", [
+            new(GitDashboard, "Dashboard", 3, true, "Todos os repositórios dos projetos com o estado de cada um.", "Git (instalado)"),
+            new(GitAccounts, "Accounts", 3, true, "Conta do GitHub conectada pelo GitHub CLI (sem senha nem token no REA).", "GitHub CLI (gh)"),
+            new(GitRepositories, "Repositories", 3, true, "Vincular, iniciar, clonar e criar repositórios no GitHub."),
+            new(GitCommit, "Commit Manager", 3, true, "Alterações, diferenças, seleção de arquivos e commit com verificação de segredos."),
+            new(GitBranches, "Branch Manager", 3, true, "Criar, trocar, renomear, excluir com proteção e fazer merge."),
+            new(GitSync, "Remote Sync", 3, true, "Buscar, receber e enviar com resumo antes; nunca força."),
+            new("git.pulls", "Pull Requests", 4, false, "Criar e acompanhar Pull Requests no GitHub.", "GitHub CLI (gh)"),
+            new("git.issues", "Issues", 4, false, "Criar e atualizar Issues no GitHub.", "GitHub CLI (gh)"),
+            new("git.releases", "Releases", 4, false, "Tags e Releases no GitHub.", "GitHub CLI (gh)"),
+            new(GitHistory, "Git History", 3, true, "Histórico de commits com detalhes de cada um."),
+            new("git.settings", "Git Settings", 4, false, "Nome/e-mail do autor e preferências do Git."),
         ]),
         new("EVIDENCE", [
             new(EvidenceCaptures, "Captures", 2, true, "Capturas por projeto com SHA-256."),

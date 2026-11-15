@@ -105,6 +105,13 @@ public sealed partial class ShellViewModel : ObservableObject, INavigator
         NavigationCatalog.ResearchProtocol => _services.GetRequiredService<ProtocolExplorerViewModel>(),
         NavigationCatalog.ResearchHttp => _services.GetRequiredService<HttpViewModel>(),
         NavigationCatalog.SettingsIntegrations => _services.GetRequiredService<IntegrationsViewModel>(),
+        NavigationCatalog.GitDashboard => _services.GetRequiredService<GitDashboardViewModel>(),
+        NavigationCatalog.GitAccounts => _services.GetRequiredService<GitAccountsViewModel>(),
+        NavigationCatalog.GitRepositories => _services.GetRequiredService<GitRepositoriesViewModel>(),
+        NavigationCatalog.GitCommit => _services.GetRequiredService<CommitManagerViewModel>(),
+        NavigationCatalog.GitBranches => _services.GetRequiredService<BranchManagerViewModel>(),
+        NavigationCatalog.GitSync => _services.GetRequiredService<RemoteSyncViewModel>(),
+        NavigationCatalog.GitHistory => _services.GetRequiredService<GitHistoryViewModel>(),
         _ => throw new InvalidOperationException($"Página implementada sem tela: {key}"),
     };
 }
