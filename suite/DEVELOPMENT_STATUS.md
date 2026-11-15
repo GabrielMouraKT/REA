@@ -4,6 +4,8 @@
 
 ## Onde paramos
 
+> **Retomada:** leia primeiro `docs/CONTINUAR.md` (Fase 3 em andamento, roteiro item a item).
+
 Fases 0, 1 e 2 concluídas e testadas. **Próxima: Fase 3 (Protocol & Binary Analysis)**, ou antecipar o
 **Bot Lab › Manual Gameplay** (planejado na Fase 4) se o dono preferir — ver `IMPLEMENTATION_PLAN.md`.
 
